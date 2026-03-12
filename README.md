@@ -94,7 +94,7 @@ Scan a **vulnerable application repository**.
 
 ---
 
-## 3️⃣ Episode 3 — Day 2: DevSecOps for Git
+## 3️⃣ Episode 3 — DevSecOps for Git
 - .gitignore
 - Native Git Pre-Commit Hooks (Custom Scripts)
 - Block commits with Gitleaks
