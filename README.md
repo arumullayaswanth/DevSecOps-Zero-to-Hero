@@ -70,10 +70,6 @@ Kubernetes Deployment
 • Kubernetes
 • OWASP ZAP
 
----
-
-## 3️⃣ Episode 3 — DevSecOps Tools Explained
-
 
 ### 🎯 Goal
 
@@ -94,6 +90,21 @@ Understand the **core security categories used in DevSecOps pipelines.**
 ### Demo Idea
 
 Scan a **vulnerable application repository**.
+
+
+---
+
+## 3️⃣ Episode 3 — Day 2: DevSecOps for Git
+- .gitignore
+- Native Git Pre-Commit Hooks (Custom Scripts)
+- Block commits with Gitleaks
+- Gitleaks -> Repository & History Scanning
+- Gitleaks in GitHub Actions
+- Branch Protection Rules
+- RBAC
+- Mandatory Reviews
+- CODEOWNERS
+- Dependabot
 
 ---
 
