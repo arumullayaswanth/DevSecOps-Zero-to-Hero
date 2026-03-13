@@ -1,0 +1,192 @@
+Now I will explain **how to create `my-git-pattoken` (GitHub Personal Access Token)** and add it to **Jenkins** so your pipeline can push the updated Kubernetes deployment file to **GitHub**.
+
+Your pipeline uses this part:
+
+```groovy
+withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')])
+```
+
+This means Jenkins needs a **GitHub Personal Access Token (PAT)**.
+
+I’ll explain **step-by-step like a beginner**.
+
+---
+
+# Step 1 — Open GitHub
+
+Go to:
+
+```
+https://github.com
+```
+
+Login to your GitHub account.
+
+---
+
+# Step 2 — Open GitHub Settings
+
+Look at the **top right corner** of the page.
+
+Click your **profile picture**.
+
+Then click:
+
+```
+Settings
+```
+
+---
+
+# Step 3 — Open Developer Settings
+
+Scroll down in the left sidebar.
+
+Click:
+
+```
+Developer settings
+```
+
+You will see several options.
+
+---
+
+# Step 4 — Open Personal Access Tokens
+
+Click:
+
+```
+Personal access tokens
+```
+
+Then click:
+
+```
+Tokens (classic)
+```
+
+---
+
+# Step 5 — Generate New Token
+
+Click:
+
+```
+Generate new token
+```
+
+Then select:
+
+```
+Generate new token (classic)
+```
+
+GitHub may ask for your password.
+
+Enter it.
+
+---
+
+# Step 6 — Configure the Token
+
+Now fill the fields.
+
+### Token name
+
+Example:
+
+```
+jenkins-github-token
+```
+
+### Expiration
+
+Choose:
+
+```
+90 days
+```
+
+or
+
+```
+No expiration
+```
+
+(for demo projects)
+
+---
+
+### Select permissions
+
+You must enable:
+
+```
+repo
+workflow
+write:packages
+delete:packages
+```
+
+At minimum you need:
+
+```
+repo
+```
+
+This allows Jenkins to **push changes to your repository**.
+
+---
+
+# Step 7 — Generate Token
+
+Scroll down and click:
+
+```
+Generate token
+```
+
+GitHub will show something like:
+
+```
+ghp_abcd1234xxxxxxxxxxxxxxxxxxxx
+```
+
+⚠️ Copy it immediately.
+
+You **cannot see it again later**.
+
+This is your **my-git-pattoken**.
+
+---
+
+# Step 8 — Add Token to Jenkins
+
+Open Jenkins:
+
+```
+http://EC2_PUBLIC_IP:8080
+```
+
+Go to:
+
+```
+Manage Jenkins
+→ Credentials
+→ Global
+→ Add Credentials
+```
+
+Fill the form:
+
+| Field       | Value                  |
+| ----------- | ---------------------- |
+| Kind        | Secret Text            |
+| Secret      | paste the GitHub token |
+| ID          | my-git-pattoken        |
+| Description | GitHub PAT Token       |
+
+Click **Create**.
+
+---
