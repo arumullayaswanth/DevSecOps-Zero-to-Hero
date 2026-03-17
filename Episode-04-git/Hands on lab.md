@@ -102,11 +102,44 @@ brew install gitleaks
 ```bash
 sudo apt install gitleaks
 ```
-### Windows
+### 🔐 Install Gitleaks (Windows)
 
-```bash
-winget install gitleaks
+#### Using winget (recommended)
+
+```powershell
+winget install --id Gitleaks.Gitleaks -e
 ```
+
+#### Verify Installation
+
+```powershell
+gitleaks version
+```
+
+#### If `gitleaks` is not recognized
+
+Run the following:
+
+```powershell
+dir "$env:LOCALAPPDATA\Microsoft\WinGet\Links"
+```
+
+If `gitleaks.exe` exists, add it to PATH:
+
+```powershell
+[Environment]::SetEnvironmentVariable(
+  "Path",
+  $env:Path + ";$env:LOCALAPPDATA\Microsoft\WinGet\Links",
+  "User"
+)
+```
+
+Restart PowerShell and verify again:
+
+```powershell
+gitleaks version
+```
+
 ---
 
 # 🖥️ STEP 6 — Run Gitleaks Scan
@@ -115,8 +148,19 @@ winget install gitleaks
 gitleaks detect
 ```
 
+##### Scan a Git Repository
+
+```powershell
+gitleaks detect --source <repo-path> --report-format json --report-path report.json
+```
+#### Run Gitleaks Scan
+
+```powershell
+gitleaks detect --source . -v
+```
 
 > Gitleaks scans the repository and detects secrets automatically.
+
 
 ---
 
