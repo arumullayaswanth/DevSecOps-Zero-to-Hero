@@ -1,7 +1,4 @@
-Perfect — now let’s build a **complete hands-on demo for Episode 04 (DevSecOps for Git)** that you can **follow exactly while recording**.
-I’ll explain like you’re teaching a beginner, step by step, nothing skipped.
 
----
 
 # 🎬 Episode 04 — DevSecOps for Git (FULL HANDS-ON DEMO)
 
