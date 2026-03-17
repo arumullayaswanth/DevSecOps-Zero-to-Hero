@@ -1,6 +1,4 @@
-# 🚀 Episode 04 — DevSecOps for Git (Topics)
-
-In this episode, we focus on securing the **source code layer**, which is the first and most critical step in DevSecOps.
+# Episode 04 — DevSecOps for Git (Topics)
 
 ---
 
