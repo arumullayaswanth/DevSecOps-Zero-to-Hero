@@ -102,7 +102,11 @@ brew install gitleaks
 ```bash
 sudo apt install gitleaks
 ```
+### Windows
 
+```bash
+winget install gitleaks
+```
 ---
 
 # 🖥️ STEP 6 — Run Gitleaks Scan
