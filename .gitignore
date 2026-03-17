@@ -1,0 +1,305 @@
+# =========================
+# Python
+# =========================
+
+**pycache**/
+*.py[codz]
+*$py.class
+*.so
+
+# Distribution / packaging
+
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+
+*.manifest
+*.spec
+
+# Installer logs
+
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+
+*.mo
+*.pot
+
+# Django / Flask
+
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+
+# Scrapy
+
+.scrapy
+
+# Sphinx docs
+
+docs/_build/
+
+# PyBuilder
+
+.pybuilder/
+target/
+
+# Jupyter / IPython
+
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# =========================
+# 🌱 Environments
+# =========================
+
+.env
+.env.*
+.envrc
+.venv
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# =========================
+# Secrets & Security
+# =========================
+
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+.aws/
+.gcp/
+.azure/
+
+*.credentials
+*.secret
+secrets.yml
+secrets.json
+
+# Vault / encryption
+
+.vault/
+.sops.yaml
+
+# =========================
+# 🐳 Docker
+# =========================
+*.pid
+*.cid
+
+# =========================
+# Kubernetes / Helm
+# =========================
+
+*.kubeconfig
+kubeconfig*
+.kube/
+*.tgz
+charts/*.tgz
+
+# =========================
+# Terraform
+# =========================
+
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+
+# =========================
+# CI/CD & Build
+# =========================
+
+artifacts/
+reports/
+logs/
+out/
+target/
+build/
+dist/
+tmp/
+temp/
+.cache/
+coverage/
+
+# =========================
+# Node.js / Frontend
+# =========================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-store/
+.next/
+.nuxt/
+
+# =========================
+# Java / JVM
+# =========================
+
+*.class
+*.jar
+*.war
+*.ear
+.gradle/
+out/
+
+# =========================
+# Go
+# =========================
+
+bin/
+pkg/
+*.test
+
+# =========================
+# Rust
+# =========================
+
+target/
+Cargo.lock
+
+# =========================
+# OS Files
+# =========================
+
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
+
+# =========================
+# IDEs / Editors
+# =========================
+
+.idea/
+.vscode/
+*.iml
+
+# Eclipse
+
+.project
+.classpath
+.settings/
+
+# =========================
+# Security Tools
+# =========================
+
+.trivyignore
+.snyk
+.snyk.d/
+dependency-check-report.*
+
+# =========================
+# Logs
+# =========================
+
+*.log
+logs/
+*.out
+*.err
+
+# =========================
+# Serverless / Cloud
+# =========================
+
+.serverless/
+.aws-sam/
+cdk.out/
+
+# =========================
+# 🧪 Misc Tools
+# =========================
+
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+cython_debug/
+
+# Ruff
+
+.ruff_cache/
+
+# Cursor
+
+.cursorignore
+.cursorindexingignore
+
+# Marimo
+
+marimo/_static/
+marimo/_lsp/
+**marimo**/
+
+# =========================
+# 📦 Package Managers (Optional Locks)
+# =========================
+
+#Pipfile.lock
+#poetry.lock
+#poetry.toml
+#pdm.lock
+#pdm.toml
+.pdm-python
+.pdm-build/
+.pixi
+
+# =========================
+# 📌 Recommended to KEEP
+# =========================
+
+# .env.example
