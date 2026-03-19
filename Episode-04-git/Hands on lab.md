@@ -9,8 +9,8 @@
 We will secure Git step by step using:
 
 * `.gitignore`
-* **Gitleaks**
 * **Pre-commit hook**
+* **Gitleaks**
 * **GitHub Actions**
 * **Branch Protection**
 * **CODEOWNERS**
