@@ -175,7 +175,7 @@ https://pre-commit.com/#install
 ### Create hook
 
 ```bash
-nano .git/hooks/pre-commit
+vim .git/hooks/pre-commit
 ```
 
 Paste:
