@@ -17,6 +17,13 @@
 - Using environment variables securely  
 
 ---
+## 🔹 Pre-Commit Security
+
+- Git pre-commit hooks  
+- Blocking secret commits  
+- Local security checks before pushing code
+
+---
 
 ## 🔹 Secret Detection
 
@@ -24,14 +31,6 @@
 - Repository scanning  
 - Commit history scanning  
 - Detecting API keys, tokens, passwords  
-
----
-
-## 🔹 Pre-Commit Security
-
-- Git pre-commit hooks  
-- Blocking secret commits  
-- Local security checks before pushing code  
 
 ---
 
