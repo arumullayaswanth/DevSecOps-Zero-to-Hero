@@ -13,9 +13,9 @@ We will secure Git step by step using:
 * **Pre-commit framework with Gitleaks**
 * **Gitleaks**
 * **GitHub Actions**
+* **Role-Based Access Control (RBAC)**
 * **Branch Protection**
 * **CODEOWNERS**
-* **Role-Based Access Control (RBAC)**
 * **Dependabot**
 
 ---
