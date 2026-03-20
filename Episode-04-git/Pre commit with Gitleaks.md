@@ -41,10 +41,9 @@ vim .pre-commit-config.yaml
 ```yaml
 repos:
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.2
+    rev: v8.24.2
     hooks:
       - id: gitleaks
-        args: ["--no-git"]
 ```
 
 ---
