@@ -1,5 +1,6 @@
 # Episode 04 — DevSecOps for Git (Topics)
 
+
 ## 🔐 1. .gitignore
 
 Prevent sensitive and unnecessary files from being tracked by Git.
