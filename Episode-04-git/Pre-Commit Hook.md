@@ -24,7 +24,7 @@ pre-commit install
 ---
 
 ### Create hook
-## ## 🔒 Pre-Commit Hook: Secret Detection
+#### 🔒 Pre-Commit Hook: Secret Detection
 
 This project uses a custom Git pre-commit hook to prevent accidental commits of sensitive information.
 
