@@ -1,76 +1,114 @@
 # Episode 04 — DevSecOps for Git (Topics)
 
----
+## 🔐 1. .gitignore
 
-## 🔹 Git Security Basics
+Prevent sensitive and unnecessary files from being tracked by Git.
 
-- Why Git is the first security layer  
-- Common Git security risks  
-- Real-world examples of Git security failures  
-
----
-
-## 🔹 Sensitive Data Protection
-
-- .gitignore best practices  
-- Avoiding secrets in code  
-- Using environment variables securely  
-
----
-## 🔹 Pre-Commit Security
-
-- Git pre-commit hooks  
-- Blocking secret commits  
-- Local security checks before pushing code
+* Avoid committing `.env`, secrets, and system files
+* Keeps the repository clean and secure
 
 ---
 
-## 🔹 Secret Detection
+## 🔍 2. Pre-Commit Hook (Basic)
 
-- Gitleaks introduction  
-- Repository scanning  
-- Commit history scanning  
-- Detecting API keys, tokens, passwords  
+👉 [View Documentation](https://github.com/arumullayaswanth/DevSecOps-Zero-to-Hero/blob/c13c228b30b8e2d9438d1f69aabc73e40c5274af/Episode-04-git/Pre-Commit%20Hook.md)
 
----
-
-## 🔹 GitHub Security Features
-
-- Branch Protection Rules  
-- Mandatory Reviews  
-- Required Pull Requests  
-- Restrict direct push to main branch  
+* Custom Git hook to scan staged changes
+* Blocks commits based on keyword detection
+* First level of local security
 
 ---
 
-## 🔹 Access Control (RBAC)
+## 🔒 3. Pre-Commit Framework with Gitleaks
 
-- Role-Based Access Control in GitHub  
-- Managing repository permissions  
-- Principle of least privilege  
+👉 [View Documentation](https://github.com/arumullayaswanth/DevSecOps-Zero-to-Hero/blob/c13c228b30b8e2d9438d1f69aabc73e40c5274af/Episode-04-git/Pre%20commit%20with%20Gitleaks.md)
 
----
-
-## 🔹 Code Ownership
-
-- CODEOWNERS file  
-- Enforcing code reviews  
-- Team-based ownership of code  
+* Uses `pre-commit` framework
+* Integrates **Gitleaks** for advanced secret detection
+* Automatically scans before every commit
 
 ---
 
-## 🔹 Dependency Security
+## 🛡️ 4. Gitleaks (Repository Scan)
 
-- Dependabot introduction  
-- Detecting vulnerable dependencies  
-- Automated dependency updates  
+👉 [View Documentation](https://github.com/arumullayaswanth/DevSecOps-Zero-to-Hero/blob/c13c228b30b8e2d9438d1f69aabc73e40c5274af/Episode-04-git/Gitleaks%20rep%20Scan%20.md)
+
+* Scans entire repository for secrets
+* Detects:
+
+  * API keys
+  * Tokens
+  * Passwords
+* Can generate reports
+
+---
+
+## ⚙️ 5. GitHub Actions (CI Security)
+
+👉 [View Documentation](https://github.com/arumullayaswanth/DevSecOps-Zero-to-Hero/blob/c13c228b30b8e2d9438d1f69aabc73e40c5274af/Episode-04-git/GitHub%20Actions.md)
+
+* Automates Gitleaks scanning in CI/CD
+* Runs on push and pull requests
+* Blocks insecure code before merging
 
 ---
 
-## 🔹 CI/CD Integration
+## 👥 6. Role-Based Access Control (RBAC)
 
-- Gitleaks in GitHub Actions  
-- Automated secret scanning in pipelines  
-- Security checks before deployment  
+* Defines who can access and modify the repository
+* Controls permissions for:
+
+  * Developers
+  * Reviewers
+  * Admins
+* Improves security and governance
 
 ---
+
+## 🔐 7. Branch Protection
+
+👉 [View Documentation](https://github.com/arumullayaswanth/DevSecOps-Zero-to-Hero/blob/c13c228b30b8e2d9438d1f69aabc73e40c5274af/Episode-04-git/Branch%20Protection%20.md)
+
+* Prevents direct commits to protected branches
+* Requires:
+
+  * Pull requests
+  * Status checks
+  * Reviews
+* Ensures only validated code is merged
+
+---
+
+## 👨‍💻 8. CODEOWNERS
+
+👉 [View Documentation](https://github.com/arumullayaswanth/DevSecOps-Zero-to-Hero/blob/c13c228b30b8e2d9438d1f69aabc73e40c5274af/Episode-04-git/CODEOWNERS.md)
+
+* Automatically assigns reviewers
+* Enforces ownership of code
+* Ensures correct people approve changes
+
+---
+
+## 🤖 9. Dependabot
+
+👉 [View Documentation](https://github.com/arumullayaswanth/DevSecOps-Zero-to-Hero/blob/c13c228b30b8e2d9438d1f69aabc73e40c5274af/Episode-04-git/Dependabot.md)
+
+* Automatically updates dependencies
+* Fixes security vulnerabilities
+* Creates pull requests for updates
+
+---
+
+## 🚀 Final Outcome
+
+By combining all these components, we achieve:
+
+* 🔒 Local security (pre-commit hooks)
+* ⚙️ CI/CD security (GitHub Actions)
+* 👥 Access control (RBAC, CODEOWNERS)
+* 🛡️ Repository protection (Branch Protection)
+* 🤖 Automated updates (Dependabot)
+
+---
+
+
