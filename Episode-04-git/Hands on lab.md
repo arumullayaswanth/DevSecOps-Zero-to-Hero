@@ -197,22 +197,30 @@ pre-commit install
 ### Create hook
 
 ```bash
-vim .git/hooks/pre-commit
+vim .git/hooks/pre-commit.sh
 ```
 
 Paste:
 
 ```bash
-#!/bin/sh
+cat > .git/hooks/pre-commit << 'EOF'
+#!/bin/bash
 
-echo "Running Gitleaks..."
+echo "🔍 Checking staged changes for sensitive keywords..."
 
-gitleaks detect --source . --no-git
+staged_changes=$(git diff --cached)
 
-if [ $? -ne 0 ]; then
-  echo "❌ Secret detected! Commit blocked."
+echo "$staged_changes" | grep -iq "secret"
+found=$?
+
+if [ $found -eq 0 ]; then
+  echo "❌ Potential secret found. Commit aborted."
   exit 1
 fi
+
+echo "✅ No sensitive content detected. Proceeding with commit."
+exit 0
+EOF
 ```
 
 ---
