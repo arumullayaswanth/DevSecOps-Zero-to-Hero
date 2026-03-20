@@ -18,24 +18,29 @@ vim .github/workflows/gitleaks.yml
 ## 🧩 Step 2: Add Workflow Configuration
 
 ```yaml
-name: Gitleaks Scan
+name: Secret Scan (Gitleaks)
 
 on:
   push:
-    branches: ["*"]
+    branches:
+      - "**"
   pull_request:
-    branches: ["*"]
+  workflow_dispatch:
 
 jobs:
-  gitleaks:
+  secret-detection:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout Repository
+      - name: 📥 Clone Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: 🔍 Run Gitleaks
+      - name: 🔍 Execute Gitleaks Scan
         uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ---
@@ -54,9 +59,9 @@ git push
 
 On every:
 
-* 📤 Push
+* 📤 Push event
 * 🔀 Pull Request
-
+* 📤 Manual trigger (workflow_dispatch)
 GitHub will:
 
 * 🔍 Run Gitleaks scan
