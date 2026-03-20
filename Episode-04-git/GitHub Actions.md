@@ -37,10 +37,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🔍 Execute Gitleaks Scan
+      - name: 🔍 Run Gitleaks Scan
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: detect --verbose --redact --exit-code 1
 ```
 
 ---
