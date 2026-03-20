@@ -74,9 +74,13 @@ vim app.py
 code
 ```
 - Stage the file
+```bash
 git add app.py
+```
 - Try to commit
+```bash
 git commit -m "test secret detection"
+```
 
 > Now let’s stop secrets before they even enter Git.
 
