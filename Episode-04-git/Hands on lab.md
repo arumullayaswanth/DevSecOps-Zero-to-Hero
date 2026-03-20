@@ -15,6 +15,7 @@ We will secure Git step by step using:
 * **GitHub Actions**
 * **Branch Protection**
 * **CODEOWNERS**
+* **Role-Based Access Control (RBAC)**
 * **Dependabot**
 
 ---
