@@ -64,7 +64,6 @@ vim .git/hooks/pre-commit.sh
 Paste:
 
 ```bash
-cat > .git/hooks/pre-commit << 'EOF'
 #!/bin/bash
 
 echo "🔍 Checking staged changes for sensitive keywords..."
