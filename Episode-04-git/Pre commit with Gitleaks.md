@@ -1,86 +1,145 @@
+# 🔒 Pre-commit Framework with Gitleaks
 
-# Pre-commit Framework with Gitleaks
-#### step-1
-#### Install pre-commit
+Prevent sensitive data like API keys, tokens, and passwords from being committed to your repository.
 
-* 🐧 [Linux](https://pre-commit.com/#install)
-* 🪟 Windows (PowerShell):
+---
+
+## 🚀 Step 1: Install `pre-commit`
+
+### 🐧 Linux
+
+👉 [Install Guide](https://pre-commit.com/#install)
+
+### 🪟 Windows (PowerShell)
 
 ```powershell
-# Install using pip
+# Install pre-commit
 python -m pip install pre-commit
 
 # Verify installation
 pre-commit --version
-
-# Install pre-commit hooks in your repo
-pre-commit install
 ```
-* 🍎 macOS:
 
-  ```bash
-  brew install pre-commit
-  ```
-  #### step-2
-- Create config file
-  ```bash
-  vim .pre-commit-config.yaml
-  ```
-- Add this configuration
-  ```bash
-  repos:
+### 🍎 macOS
+
+```bash
+brew install pre-commit
+```
+
+---
+
+## ⚙️ Step 2: Configure Gitleaks
+
+### 📁 Create config file
+
+```bash
+vim .pre-commit-config.yaml
+```
+
+### 🧩 Add configuration
+
+```yaml
+repos:
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.18.2
     hooks:
       - id: gitleaks
         args: ["--no-git"]
-  ```
-- Install the hook
-  ```bash
-  pre-commit run --all-files
-  ```
-  or
-  ```bash
-  pre-commit install
-  ```
-  
-#### 🔒 What happens now?
-
-* On every commit:
-
-  * Gitleaks scans your code
-  * If secrets are found → ❌ commit blocked
-  * If clean → ✅ commit allowed
+```
 
 ---
 
-# 🧠 Why this is better than your script
+## 🔧 Step 3: Install Git Hook
 
-| Feature             | Your Script | Gitleaks + pre-commit |
-| ------------------- | ----------- | --------------------- |
-| Detect real secrets | ❌           | ✅                     |
-| Detect API keys     | ❌           | ✅                     |
-| Detect tokens       | ❌           | ✅                     |
-| Accuracy            | Low         | High                  |
-| Automation          | Manual      | Automatic             |
+```bash
+pre-commit install
+```
 
+👉 Optional (run manually on all files):
 
+```bash
+pre-commit run --all-files
+```
 
-#### step-3 Test
+---
+
+## 🔒 What Happens Now?
+
+On every commit:
+
+* 🔍 Gitleaks scans your code
+* ❌ If secrets are detected → Commit is blocked
+* ✅ If no issues → Commit is allowed
+
+---
+
+## 🧪 Step 4: Test the Setup
+
+### 📁 Create a test file
+
 ```bash
 vim app.py
 ```
-```bash
-code
+
+### ✏️ Add a fake secret
+
+```python
+AWS_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"
 ```
-- Stage the file
+
+### ➕ Stage the file
+
 ```bash
 git add app.py
 ```
-- Try to commit
+
+### 🚫 Try to commit
+
 ```bash
 git commit -m "test secret detection"
 ```
 
-> Now let’s stop secrets before they even enter Git.
+👉 Expected result:
 
+* ❌ Commit should be blocked
+
+---
+
+### ✅ Fix and retry
+
+Remove the secret and commit again:
+
+```bash
+git add app.py
+git commit -m "clean commit"
+```
+
+👉 Expected result:
+
+* ✅ Commit succeeds
+
+---
+
+## 🧠 Why Use Gitleaks + Pre-commit?
+
+| Feature             | Basic Script | Gitleaks + Pre-commit |
+| ------------------- | ------------ | --------------------- |
+| Detect real secrets | ❌            | ✅                     |
+| Detect API keys     | ❌            | ✅                     |
+| Detect tokens       | ❌            | ✅                     |
+| Accuracy            | Low          | High                  |
+| Automation          | Manual       | Automatic             |
+
+---
+
+## 💡 Summary
+
+* Prevents accidental secret leaks
+* Runs automatically before every commit
+* Uses industry-standard detection rules
+
+---
+
+## 🚀 Final Thought
+
+> Now let’s stop secrets before they even enter Git.
