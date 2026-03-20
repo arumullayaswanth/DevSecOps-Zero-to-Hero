@@ -10,7 +10,7 @@ We will secure Git step by step using:
 
 * `.gitignore`
 * **Pre-commit hook**
-* **Gitleaks**
+* **Pre-commit framework with Gitleaks**
 * **GitHub Actions**
 * **Branch Protection**
 * **CODEOWNERS**
