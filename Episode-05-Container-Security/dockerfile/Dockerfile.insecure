@@ -1,0 +1,19 @@
+# ❌ INSECURE Dockerfile — DO NOT use in production
+# Problems:
+# 1. Runs as root
+# 2. Uses full base image (large attack surface)
+# 3. No .dockerignore
+# 4. Installs dev dependencies
+# 5. Uses 'latest' tag
+
+FROM node:latest
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]

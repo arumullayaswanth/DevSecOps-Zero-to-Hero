@@ -1,0 +1,31 @@
+# Trivy Configuration File
+# Place this as trivy.yaml in your project root
+
+# Scan settings
+scan:
+  # Security checks to perform
+  scanners:
+    - vuln        # Vulnerability scanning
+    - secret      # Secret detection
+    - misconfig   # Misconfiguration scanning
+
+# Vulnerability settings
+vulnerability:
+  # Only report vulnerabilities with available fixes
+  ignore-unfixed: true
+  # Vulnerability types to scan
+  type:
+    - os
+    - library
+
+# Severity filter
+severity:
+  - CRITICAL
+  - HIGH
+
+# Exit code when vulnerabilities are found (useful for CI/CD)
+# 0 = don't fail, 1 = fail the build
+exit-code: 1
+
+# Output format: table, json, sarif, template
+format: table
