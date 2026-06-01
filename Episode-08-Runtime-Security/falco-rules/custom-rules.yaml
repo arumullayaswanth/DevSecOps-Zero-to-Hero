@@ -1,0 +1,149 @@
+# Custom Falco Rules for Runtime Security
+# Deploy with: helm install falco falcosecurity/falco --set-file falco.rules_file[0]=custom-rules.yaml
+
+# Rule 1: Detect shell spawned in container
+- rule: Shell Spawned in Container
+  desc: Detect any shell execution inside a container (potential attacker activity)
+  condition: >
+    spawned_process and
+    container and
+    proc.name in (bash, sh, zsh, dash, ksh, csh, tcsh)
+  output: >
+    Shell spawned in container
+    (user=%user.name user_uid=%user.uid container=%container.name
+     shell=%proc.name parent=%proc.pname cmdline=%proc.cmdline
+     image=%container.image.repository:%container.image.tag)
+  priority: WARNING
+  tags: [container, shell, mitre_execution]
+
+# Rule 2: Detect sensitive file access
+- rule: Read Sensitive File in Container
+  desc: Detect reading of sensitive system files inside containers
+  condition: >
+    open_read and
+    container and
+    fd.name in (/etc/shadow, /etc/sudoers, /etc/gshadow,
+                /root/.ssh/authorized_keys, /root/.bash_history)
+  output: >
+    Sensitive file read in container
+    (user=%user.name file=%fd.name container=%container.name
+     image=%container.image.repository command=%proc.cmdline)
+  priority: CRITICAL
+  tags: [container, filesystem, mitre_credential_access]
+
+# Rule 3: Detect outbound connections to suspicious ports (crypto mining)
+- rule: Outbound Connection to Mining Pool
+  desc: Detect outbound connections to known crypto mining ports
+  condition: >
+    outbound and
+    container and
+    fd.sport in (3333, 4444, 5555, 7777, 8888, 9999, 14444, 14433)
+  output: >
+    Possible crypto mining connection detected
+    (container=%container.name connection=%fd.name port=%fd.sport
+     image=%container.image.repository)
+  priority: CRITICAL
+  tags: [container, network, cryptomining]
+
+# Rule 4: Detect container escape via mount
+- rule: Mount Syscall in Container
+  desc: Detect mount syscall in container which could indicate escape attempt
+  condition: >
+    syscall.type = mount and
+    container
+  output: >
+    Mount syscall detected in container — possible escape attempt
+    (user=%user.name container=%container.name command=%proc.cmdline
+     image=%container.image.repository)
+  priority: CRITICAL
+  tags: [container, escape, mitre_privilege_escalation]
+
+# Rule 5: Detect package manager usage in production
+- rule: Package Manager Executed in Container
+  desc: Package managers should not run in production containers
+  condition: >
+    spawned_process and
+    container and
+    proc.name in (apt, apt-get, yum, dnf, apk, pip, pip3, npm, yarn, gem, composer)
+  output: >
+    Package manager executed in production container
+    (user=%user.name command=%proc.cmdline container=%container.name
+     image=%container.image.repository)
+  priority: ERROR
+  tags: [container, software_mgmt, mitre_execution]
+
+# Rule 6: Detect writing to /etc directory
+- rule: Write to Etc Directory
+  desc: Detect writes to /etc which could indicate config tampering
+  condition: >
+    open_write and
+    container and
+    fd.name startswith /etc/
+  output: >
+    File written to /etc in container
+    (user=%user.name file=%fd.name container=%container.name
+     command=%proc.cmdline image=%container.image.repository)
+  priority: ERROR
+  tags: [container, filesystem, mitre_persistence]
+
+# Rule 7: Detect privilege escalation tools
+- rule: Privilege Escalation Tool Executed
+  desc: Detect execution of privilege escalation tools
+  condition: >
+    spawned_process and
+    container and
+    proc.name in (sudo, su, doas, pkexec, setuid)
+  output: >
+    Privilege escalation tool executed in container
+    (user=%user.name command=%proc.cmdline container=%container.name
+     image=%container.image.repository)
+  priority: CRITICAL
+  tags: [container, mitre_privilege_escalation]
+
+# Rule 8: Detect reverse shell
+- rule: Reverse Shell in Container
+  desc: Detect potential reverse shell activity
+  condition: >
+    spawned_process and
+    container and
+    ((proc.name in (bash, sh, dash) and proc.args contains "/dev/tcp") or
+     (proc.name = nc and proc.args contains "-e") or
+     (proc.name = ncat and proc.args contains "--exec"))
+  output: >
+    Possible reverse shell detected in container
+    (user=%user.name command=%proc.cmdline container=%container.name
+     image=%container.image.repository)
+  priority: CRITICAL
+  tags: [container, network, mitre_execution, reverse_shell]
+
+# Rule 9: Detect binary modification
+- rule: Binary Directory Modified
+  desc: Detect writes to binary directories
+  condition: >
+    open_write and
+    container and
+    (fd.name startswith /usr/bin/ or
+     fd.name startswith /usr/sbin/ or
+     fd.name startswith /bin/ or
+     fd.name startswith /sbin/)
+  output: >
+    Binary directory modified in container
+    (user=%user.name file=%fd.name container=%container.name
+     command=%proc.cmdline image=%container.image.repository)
+  priority: CRITICAL
+  tags: [container, filesystem, mitre_persistence]
+
+# Rule 10: Detect container running as root
+- rule: Container Running as Root
+  desc: Alert when a new container starts running as root user
+  condition: >
+    container.id != host and
+    evt.type = container and
+    container and
+    user.uid = 0
+  output: >
+    Container started running as root
+    (container=%container.name image=%container.image.repository
+     user=%user.name uid=%user.uid)
+  priority: WARNING
+  tags: [container, users, mitre_privilege_escalation]

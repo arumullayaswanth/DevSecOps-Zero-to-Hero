@@ -1,0 +1,6 @@
+# Gitleaks ignore file
+# These are intentional dummy secrets used for DevSecOps demonstration purposes
+
+Day-4/yash.txt:generic-api-key:7
+Day-4/yash.txt:generic-api-key:8
+Day-4/yash.txt:private-key:2
