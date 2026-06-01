@@ -413,7 +413,7 @@ osv-scanner -r .
 osv-scanner --lockfile=package-lock.json
 
 # Scan a Docker image
-osv-scanner --docker <image-name>
+osv-scanner --docker nginx:1.25
 
 # Scan with SBOM
 osv-scanner --sbom=sbom.json

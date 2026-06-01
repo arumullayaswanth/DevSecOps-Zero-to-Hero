@@ -1,0 +1,12 @@
+{
+    "name": "devsecops-container-security-demo",
+    "version": "1.0.0",
+    "description": "Demo Node.js app for Episode 05 - Container Security",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "express": "4.18.2"
+    }
+}
