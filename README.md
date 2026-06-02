@@ -132,7 +132,9 @@ myapp:distroless — ✅ No shell, static binary, ~15MB
 ```
 
 **Key Takeaway:** Smaller image = fewer vulnerabilities = smaller attack surface. Always run as non-root.
+## 🎓 Free Course
 
+- [Developing Secure Software (LFD121)](https://openssf.org/training/courses/) — Free course by OpenSSF (Open Source Security Foundation) covering secure software development practices including container security
 ---
 
 ## ☸️ Episode 06 — Kubernetes Security

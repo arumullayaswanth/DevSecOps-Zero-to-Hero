@@ -571,3 +571,7 @@ osv-scanner -r .
 - [OSV Scanner](https://google.github.io/osv-scanner/)
 - [Google Distroless Images](https://github.com/GoogleContainerTools/distroless)
 - [CIS Docker Benchmark](https://www.cisecurity.org/benchmark/docker)
+
+## 🎓 Free Course
+
+- [Developing Secure Software (LFD121)](https://openssf.org/training/courses/) — Free course by OpenSSF (Open Source Security Foundation) covering secure software development practices including container security
