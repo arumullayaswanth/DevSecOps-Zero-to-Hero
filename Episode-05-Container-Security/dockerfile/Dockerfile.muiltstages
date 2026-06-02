@@ -1,15 +1,16 @@
 # Stage 1: Install dependencies
-FROM node:25 AS deps
+FROM node:18 AS deps
 WORKDIR /app
 COPY package*.json ./
 RUN npm install --omit=dev
 
 # Stage 2: Production image
-FROM gcr.io/distroless/nodejs20-debian12
+FROM node:18-slim
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Switch to user
-USER nonroot
+
+# Switch to non-root user
+USER node
 EXPOSE 3000
-CMD ["server.js"]
+CMD ["node", "server.js"]

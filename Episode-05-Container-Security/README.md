@@ -136,7 +136,7 @@ CMD ["./myapp"]
 FROM node:18 AS deps
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --production
+RUN npm install --omit=dev
 
 # Stage 2: Production image
 FROM node:18-slim
@@ -208,6 +208,24 @@ ENV PYTHONPATH=/app/deps
 USER nonroot:nonroot
 CMD ["main.py"]
 ```
+#### Example: Node.js with Distroless
+```dockerfile
+# Stage 1: Install dependencies
+FROM node:25 AS deps
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# Stage 2: Production image
+FROM gcr.io/distroless/nodejs20-debian12
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+# Switch to user
+USER nonroot
+EXPOSE 3000
+CMD ["server.js"]
+```
 
 #### Available Distroless Images
 
@@ -217,7 +235,7 @@ CMD ["main.py"]
 | `gcr.io/distroless/base-debian12` | Dynamically linked binaries |
 | `gcr.io/distroless/java17-debian12` | Java applications |
 | `gcr.io/distroless/python3-debian12` | Python applications |
-| `gcr.io/distroless/nodejs18-debian12` | Node.js applications |
+| `gcr.io/distroless/nodejs20-debian12` | Node.js applications |
 
 ---
 
@@ -300,13 +318,21 @@ RUN apt-get install -y --no-install-recommends <only-what-you-need>
 # Linux
 curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
 
+sudo apt install trivy
+
 # macOS
 brew install trivy
+
+# PowerShell (Run as Administrator)
+winget install AquaSecurity.Trivy
 
 # Docker (no install needed)
 docker run aquasec/trivy image <your-image>
 ```
 
+```bash
+trivy --version
+```
 #### Basic Scanning
 
 ```bash
@@ -324,6 +350,12 @@ trivy config ./Dockerfile
 
 # Scan filesystem (source code dependencies)
 trivy fs --scanners vuln,secret .
+
+# Output as a table
+trivy image --format table distroless
+
+# Save report
+trivy image -o report.txt distroless
 ```
 
 #### Trivy Output Example
@@ -396,11 +428,18 @@ jobs:
 # Go install
 go install github.com/google/osv-scanner/cmd/osv-scanner@latest
 
+# PowerShell (Run as Administrator)
+winget install Google.OSVScanner
+
 # macOS
 brew install osv-scanner
 
 # Docker
 docker run -v $(pwd):/src ghcr.io/google/osv-scanner -r /src
+```
+
+```bash
+osv-scanner --version
 ```
 
 #### Basic Usage
@@ -411,9 +450,6 @@ osv-scanner -r .
 
 # Scan a specific lockfile
 osv-scanner --lockfile=package-lock.json
-
-# Scan a Docker image
-osv-scanner --docker <image-name>
 
 # Scan with SBOM
 osv-scanner --sbom=sbom.json

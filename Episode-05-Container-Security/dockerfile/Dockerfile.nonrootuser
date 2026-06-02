@@ -1,0 +1,18 @@
+# ✅ GOOD: Runs as non-root user
+FROM node:18-slim
+
+# Create a non-root user and group
+RUN groupadd -r appgroup && useradd -r -g appgroup -d /app -s /sbin/nologin appuser
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install --production
+
+COPY --chown=appuser:appgroup . .
+
+# Switch to non-root user
+USER appuser
+
+EXPOSE 3000
+CMD ["node", "server.js"]
