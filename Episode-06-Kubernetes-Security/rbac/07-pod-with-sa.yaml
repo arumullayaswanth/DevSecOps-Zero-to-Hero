@@ -1,0 +1,63 @@
+# 07-pod-with-sa.yaml
+# Deploy a pod that uses our custom service account
+# This pod will ONLY have the permissions defined in app-role
+# It can get/list pods and services, but CANNOT delete or create anything
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-app-pod
+  namespace: devsecops-demo
+  labels:
+    app: secure-app
+spec:
+  # Use our custom service account (not the default one)
+  serviceAccountName: app-service-account
+
+  # Disable auto-mounting SA token if pod doesn't need API access
+  # automountServiceAccountToken: false
+
+  securityContext:
+    # Pod-level security: run as non-root
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+
+  containers:
+    - name: app
+      image: nginx:1.25-alpine
+      ports:
+        - containerPort: 80
+      securityContext:
+        # Container-level security
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "250m"
+        requests:
+          memory: "64Mi"
+          cpu: "100m"
+      # Nginx needs writable directories for temp files
+      volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: nginx-cache
+          mountPath: /var/cache/nginx
+        - name: nginx-run
+          mountPath: /var/run
+
+  volumes:
+    - name: tmp
+      emptyDir: {}
+    - name: nginx-cache
+      emptyDir: {}
+    - name: nginx-run
+      emptyDir: {}

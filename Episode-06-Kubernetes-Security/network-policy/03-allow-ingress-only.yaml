@@ -1,0 +1,37 @@
+# 03-allow-ingress-only.yaml
+# Allow incoming traffic to backend pods from frontend pods
+# Also allow traffic from an ingress controller (for external access)
+# Egress is not specified here — use with 04-allow-egress-dns.yaml
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-only
+  namespace: devsecops-demo
+spec:
+  # Applies to backend pods
+  podSelector:
+    matchLabels:
+      app: backend
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    # Allow from frontend pods in same namespace
+    - from:
+        - podSelector:
+            matchLabels:
+              app: frontend
+      ports:
+        - protocol: TCP
+          port: 8080
+
+    # Allow from ingress controller namespace (external traffic)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080

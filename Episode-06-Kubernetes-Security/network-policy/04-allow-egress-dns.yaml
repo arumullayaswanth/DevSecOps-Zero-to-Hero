@@ -1,0 +1,28 @@
+# 04-allow-egress-dns.yaml
+# When you deny all egress, pods can't resolve DNS (service names won't work)
+# This policy allows DNS traffic (port 53) to kube-dns/CoreDNS
+# Apply this alongside 01-deny-all.yaml so pods can still resolve service names
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-dns
+  namespace: devsecops-demo
+spec:
+  # Apply to ALL pods in namespace
+  podSelector: {}
+
+  policyTypes:
+    - Egress
+
+  egress:
+    # Allow DNS queries to kube-system namespace (where CoreDNS runs)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53 # DNS uses UDP port 53
+        - protocol: TCP
+          port: 53 # DNS fallback uses TCP port 53

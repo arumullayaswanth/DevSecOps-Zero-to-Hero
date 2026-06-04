@@ -1,0 +1,13 @@
+# 01-namespace.yaml
+# Create a dedicated namespace for our demo
+# Namespaces isolate resources — RBAC, Network Policies, and Secrets are scoped to namespaces
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devsecops-demo
+  labels:
+    # Labels used later for Pod Security Standards enforcement
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted

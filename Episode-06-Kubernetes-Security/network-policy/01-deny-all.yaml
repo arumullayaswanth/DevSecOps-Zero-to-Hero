@@ -1,0 +1,21 @@
+# 01-deny-all.yaml
+# DENY ALL traffic in the namespace by default
+# This is the most important network policy — start with deny all, then allow only what's needed
+# Without this, ALL pods can talk to ALL other pods (insecure)
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+  namespace: devsecops-demo
+spec:
+  # Apply to ALL pods in this namespace
+  podSelector: {} # Empty selector = all pods
+
+  # Block ALL ingress (incoming) and egress (outgoing) traffic
+  policyTypes:
+    - Ingress
+    - Egress
+
+  # No ingress rules = all incoming traffic is DENIED
+  # No egress rules = all outgoing traffic is DENIED

@@ -1,0 +1,27 @@
+# 05-clusterrole.yaml
+# A ClusterRole works across ALL namespaces (cluster-wide)
+# This creates a read-only viewer role for monitoring purposes
+# Use case: A monitoring team needs to view pods in all namespaces but can't modify anything
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cluster-viewer
+rules:
+  # Can view pods in ALL namespaces
+  - apiGroups: [""]
+    resources: ["pods", "services", "namespaces"]
+    verbs: ["get", "list", "watch"]
+
+  # Can view deployments in ALL namespaces
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch"]
+
+  # Can view events (useful for troubleshooting)
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+
+  # ❌ Cannot create, delete, or modify anything
+  # ❌ Cannot access secrets

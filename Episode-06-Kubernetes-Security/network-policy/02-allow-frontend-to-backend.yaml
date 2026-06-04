@@ -1,0 +1,32 @@
+# 02-allow-frontend-to-backend.yaml
+# Allow pods with label "app: frontend" to talk to pods with label "app: backend"
+# Only on port 8080 (the backend API port)
+# All other traffic to backend pods is still BLOCKED
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backend
+  namespace: devsecops-demo
+spec:
+  # This policy applies to pods with label "app: backend"
+  podSelector:
+    matchLabels:
+      app: backend
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    # Allow traffic FROM frontend pods
+    - from:
+        - podSelector:
+            matchLabels:
+              app: frontend
+      ports:
+        - protocol: TCP
+          port: 8080 # Only allow traffic on port 8080
+
+
+    # ❌ Traffic from any other pod is DENIED
+    # ❌ Traffic on any other port is DENIED

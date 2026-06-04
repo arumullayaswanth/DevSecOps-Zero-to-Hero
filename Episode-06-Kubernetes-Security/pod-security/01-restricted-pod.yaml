@@ -1,0 +1,75 @@
+# 01-restricted-pod.yaml
+# ✅ MOST SECURE — follows "restricted" Pod Security Standard
+# This pod follows ALL security best practices:
+# - Non-root user
+# - Read-only filesystem
+# - All capabilities dropped
+# - No privilege escalation
+# - Seccomp profile enabled
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: restricted-pod
+  namespace: devsecops-demo
+  labels:
+    app: secure-app
+    security-level: restricted
+spec:
+  # Disable auto-mounting the service account token
+  # Pod doesn't need to talk to Kubernetes API
+  automountServiceAccountToken: false
+
+  securityContext:
+    # Pod must run as non-root user
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    # Enable seccomp (system call filtering)
+    seccompProfile:
+      type: RuntimeDefault
+
+  containers:
+    - name: app
+      image: nginx:1.25-alpine
+      ports:
+        - containerPort: 8080
+
+      securityContext:
+        # Cannot escalate to root
+        allowPrivilegeEscalation: false
+        # Filesystem is read-only (attacker can't write malicious files)
+        readOnlyRootFilesystem: true
+        # Drop ALL Linux capabilities
+        capabilities:
+          drop:
+            - ALL
+
+      # Resource limits prevent DoS attacks
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "250m"
+        requests:
+          memory: "64Mi"
+          cpu: "100m"
+
+      # Writable directories mounted as emptyDir
+      volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: nginx-cache
+          mountPath: /var/cache/nginx
+        - name: nginx-run
+          mountPath: /var/run
+
+  volumes:
+    - name: tmp
+      emptyDir:
+        medium: Memory
+        sizeLimit: 32Mi
+    - name: nginx-cache
+      emptyDir: {}
+    - name: nginx-run
+      emptyDir: {}

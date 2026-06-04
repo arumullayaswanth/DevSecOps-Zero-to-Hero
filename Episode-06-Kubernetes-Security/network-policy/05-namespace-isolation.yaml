@@ -1,0 +1,26 @@
+# 05-namespace-isolation.yaml
+# Isolate the devsecops-demo namespace from all other namespaces
+# Only pods WITHIN this namespace can talk to each other
+# Pods from other namespaces (like default, staging, etc.) are BLOCKED
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: namespace-isolation
+  namespace: devsecops-demo
+spec:
+  # Apply to ALL pods in this namespace
+  podSelector: {}
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    # Only allow traffic from pods in the SAME namespace
+    - from:
+        - podSelector: {} # Any pod in devsecops-demo namespace
+
+
+    # ❌ Traffic from other namespaces is BLOCKED
+    # ❌ Pods in 'default' namespace cannot reach pods here
+    # ❌ Pods in 'staging' namespace cannot reach pods here

@@ -1,0 +1,20 @@
+# 04-rolebinding.yaml
+# A RoleBinding connects a Role to a Subject (User, Group, or ServiceAccount)
+# This binds 'app-role' to 'app-service-account'
+# Result: app-service-account can ONLY get/list pods, services, and configmaps
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-rolebinding
+  namespace: devsecops-demo
+subjects:
+  # WHO gets the permissions
+  - kind: ServiceAccount
+    name: app-service-account    # The SA we created in 02-serviceaccount.yaml
+    namespace: devsecops-demo
+roleRef:
+  # WHICH role to bind
+  kind: Role
+  name: app-role                 # The role we created in 03-role.yaml
+  apiGroup: rbac.authorization.k8s.io

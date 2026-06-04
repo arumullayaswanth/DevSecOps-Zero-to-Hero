@@ -1,0 +1,23 @@
+# 06-clusterrolebinding.yaml
+# Binds the cluster-viewer ClusterRole to a specific user
+# This user can now view pods/services/deployments in ALL namespaces
+# But cannot modify, create, or delete anything
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: viewer-binding
+subjects:
+  # Bind to a user named 'yaswanth' (replace with your username)
+  - kind: User
+    name: yaswanth
+    apiGroup: rbac.authorization.k8s.io
+
+  # You can also bind to a group
+  # - kind: Group
+  #   name: monitoring-team
+  #   apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cluster-viewer
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,32 @@
+# 04-namespace-enforcement.yaml
+# Enforce Pod Security Standards at the namespace level
+# After applying this, any pod that violates the "restricted" standard
+# will be REJECTED by Kubernetes automatically
+#
+# Three modes:
+# - enforce: REJECT pods that violate (blocks deployment)
+# - audit: Allow but LOG violations (for monitoring)
+# - warn: Allow but show WARNING to user (for migration)
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devsecops-demo
+  labels:
+    # ENFORCE restricted level — violating pods will be REJECTED
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+
+    # AUDIT restricted level — violations logged to audit log
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
+
+    # WARN restricted level — user sees warning message
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+
+# After applying this:
+# kubectl apply -f pod-security/03-privileged-pod.yaml
+# Expected output:
+#   Error from server (Forbidden): error when creating "03-privileged-pod.yaml":
+#   pods "privileged-pod" is forbidden: violates PodSecurity "restricted:latest"

@@ -1,0 +1,43 @@
+# 02-baseline-pod.yaml
+# ⚠️ MODERATE SECURITY — follows "baseline" Pod Security Standard
+# Blocks known privilege escalation but allows some things restricted doesn't
+# - Blocks: privileged mode, hostNetwork, hostPID
+# - Allows: running as root (not recommended but allowed)
+# - Allows: writable filesystem
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: baseline-pod
+  namespace: devsecops-demo
+  labels:
+    app: moderate-app
+    security-level: baseline
+spec:
+  containers:
+    - name: app
+      image: nginx:1.25-alpine
+      ports:
+        - containerPort: 80
+
+      securityContext:
+        # These are the minimum security settings for baseline
+        allowPrivilegeEscalation: false
+        # Note: runAsNonRoot is NOT required at baseline level
+        # Note: readOnlyRootFilesystem is NOT required at baseline level
+        # Note: capabilities drop ALL is NOT required at baseline level
+
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "250m"
+        requests:
+          memory: "64Mi"
+          cpu: "100m"
+
+  # Baseline level does NOT require:
+  # - seccompProfile
+  # - runAsNonRoot
+  # - readOnlyRootFilesystem
+  # - capabilities drop ALL
+  # But these are still RECOMMENDED

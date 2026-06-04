@@ -1,0 +1,49 @@
+# 03-privileged-pod.yaml
+# ❌ INSECURE — DO NOT use in production
+# This pod has FULL access to the host system
+# An attacker who compromises this pod can escape to the host machine
+#
+# This will be REJECTED if Pod Security Standards are enforced on the namespace
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: privileged-pod
+  namespace: devsecops-demo
+  labels:
+    app: dangerous-app
+    security-level: privileged
+spec:
+  # ❌ Using host network — pod can see all host network traffic
+  hostNetwork: true
+
+  # ❌ Using host PID — pod can see all processes on the host
+  hostPID: true
+
+  containers:
+    - name: app
+      image: nginx:1.25-alpine
+      ports:
+        - containerPort: 80
+
+      securityContext:
+        # ❌ Privileged mode — full access to host devices
+        privileged: true
+
+        # ❌ Running as root
+        runAsUser: 0
+
+        # ❌ Can escalate privileges
+        allowPrivilegeEscalation: true
+
+        # ❌ ALL capabilities granted
+        capabilities:
+          add:
+            - ALL
+
+  # WHY THIS IS DANGEROUS:
+  # 1. Container can access host filesystem via /proc
+  # 2. Container can load kernel modules
+  # 3. Container can see and kill host processes
+  # 4. Container can sniff host network traffic
+  # 5. Container escape is trivial
