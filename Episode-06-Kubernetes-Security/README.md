@@ -178,16 +178,27 @@ kubectl get networkpolicies -n devsecops-demo
 # Describe a network policy
 kubectl describe networkpolicy deny-all -n devsecops-demo
 
-# Test connectivity (deploy test pods first)
-kubectl run test-frontend --image=alpine -n devsecops-demo -- sleep 3600
-kubectl run test-backend --image=alpine -n devsecops-demo --labels="app=backend" -- sleep 3600
+# Deploy test pods (these comply with restricted PSS)
+kubectl apply -f network-policy/test-pods.yaml
 
-# Test: frontend trying to reach backend (should work after allow policy)
-kubectl exec -it test-frontend -n devsecops-demo -- wget -qO- --timeout=3 http://test-backend
+# Wait for pods to be running
+kubectl get pods -n devsecops-demo
 
-# Test: frontend trying to reach database (should be BLOCKED)
-kubectl exec -it test-frontend -n devsecops-demo -- wget -qO- --timeout=3 http://database
-# Expected: timeout/connection refused
+# Test: frontend trying to reach backend on port 8080 (should work after allow policy)
+kubectl exec -it test-frontend -n devsecops-demo -- wget -qO- --timeout=3 http://test-backend:8080
+# Expected: connection successful (allowed by 02-allow-frontend-to-backend.yaml)
+
+# Test: frontend trying to reach database directly (should be BLOCKED)
+kubectl exec -it test-frontend -n devsecops-demo -- wget -qO- --timeout=3 http://test-database:5432
+# Expected: timeout/connection refused (no policy allows frontend→database)
+
+# Test: external namespace trying to reach backend (should be BLOCKED)
+kubectl run external-pod --image=alpine -n default -- sleep 3600
+kubectl exec -it external-pod -n default -- wget -qO- --timeout=3 http://test-backend.devsecops-demo:8080
+# Expected: timeout (namespace isolation blocks it)
+
+# Cleanup test pods
+kubectl delete -f network-policy/test-pods.yaml
 ```
 
 ---

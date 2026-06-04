@@ -1,0 +1,100 @@
+# test-pods.yaml
+# Test pods for verifying network policies
+# These pods comply with "restricted" Pod Security Standards
+# Deploy these first, then test connectivity between them
+
+---
+# Frontend test pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-frontend
+  namespace: devsecops-demo
+  labels:
+    app: frontend
+spec:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: test
+      image: alpine:3.19
+      command: ["sleep", "3600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+      resources:
+        limits:
+          memory: "64Mi"
+          cpu: "100m"
+
+---
+# Backend test pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-backend
+  namespace: devsecops-demo
+  labels:
+    app: backend
+spec:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: test
+      image: alpine:3.19
+      command: ["sleep", "3600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+      resources:
+        limits:
+          memory: "64Mi"
+          cpu: "100m"
+
+---
+# Database test pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-database
+  namespace: devsecops-demo
+  labels:
+    app: database
+spec:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: test
+      image: alpine:3.19
+      command: ["sleep", "3600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+      resources:
+        limits:
+          memory: "64Mi"
+          cpu: "100m"
