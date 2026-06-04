@@ -23,10 +23,12 @@
 | `rbac/06-clusterrolebinding.yaml` | Bind cluster role to user |
 | `rbac/07-pod-with-sa.yaml` | Pod using the service account |
 | `network-policy/01-deny-all.yaml` | Deny all traffic by default |
-| `network-policy/02-allow-frontend-to-backend.yaml` | Allow specific pod communication |
+| `network-policy/02-allow-frontend-to-backend.yaml` | Allow ingress: frontend → backend |
 | `network-policy/03-allow-ingress-only.yaml` | Allow only ingress traffic |
-| `network-policy/04-allow-egress-dns.yaml` | Allow DNS egress only |
+| `network-policy/04-allow-egress-dns.yaml` | Allow DNS egress (required for service discovery) |
 | `network-policy/05-namespace-isolation.yaml` | Isolate namespaces from each other |
+| `network-policy/06-allow-frontend-egress-to-backend.yaml` | Allow egress: frontend → backend |
+| `network-policy/test-pods.yaml` | Test pods + services for verifying policies |
 | `pod-security/01-restricted-pod.yaml` | Pod following restricted standards |
 | `pod-security/02-baseline-pod.yaml` | Pod following baseline standards |
 | `pod-security/03-privileged-pod.yaml` | ❌ Privileged pod (bad example) |
@@ -157,52 +159,77 @@ Network Policies only work if your cluster has a CNI plugin that supports them:
 ### Hands-On Commands
 
 ```bash
-# Apply deny-all policy (blocks ALL traffic in the namespace)
+# Step 1: Create namespace first (required for all other resources)
+kubectl apply -f rbac/01-namespace.yaml
+
+# Step 2: Apply deny-all policy (blocks ALL traffic in the namespace)
 kubectl apply -f network-policy/01-deny-all.yaml
 
-# Allow frontend to talk to backend only
-kubectl apply -f network-policy/02-allow-frontend-to-backend.yaml
-
-# Allow ingress traffic only (no egress)
-kubectl apply -f network-policy/03-allow-ingress-only.yaml
-
-# Allow DNS egress (pods need DNS to resolve service names)
+# Step 3: Allow DNS egress (pods NEED DNS to resolve service names)
+# Without this, all wget/curl commands will fail with "bad address"
 kubectl apply -f network-policy/04-allow-egress-dns.yaml
 
-# Isolate namespace from other namespaces
+# Step 4: Allow frontend → backend INGRESS (who can come IN to backend)
+kubectl apply -f network-policy/02-allow-frontend-to-backend.yaml
+
+# Step 5: Allow frontend → backend EGRESS (where frontend can send traffic OUT)
+# BOTH ingress AND egress are needed because deny-all blocks both directions
+kubectl apply -f network-policy/06-allow-frontend-egress-to-backend.yaml
+
+# Step 6: Allow ingress from ingress controller
+kubectl apply -f network-policy/03-allow-ingress-only.yaml
+
+# Step 7: Isolate namespace from other namespaces
 kubectl apply -f network-policy/05-namespace-isolation.yaml
 
-# Verify network policies
+# Verify all network policies are applied
 kubectl get networkpolicies -n devsecops-demo
 
-# Describe a network policy
+# Describe a network policy to see its rules
 kubectl describe networkpolicy deny-all -n devsecops-demo
+```
 
-# Deploy test pods and services (these comply with restricted PSS)
+### Testing Network Policies
+
+```bash
+# Deploy test pods and services (comply with restricted PSS)
 kubectl apply -f network-policy/test-pods.yaml
 
-# Wait for pods to be running
+# Wait for all pods to be Running
 kubectl get pods -n devsecops-demo
 kubectl get svc -n devsecops-demo
 
-# IMPORTANT: Apply DNS egress first (pods need DNS to resolve service names)
-# Without this, all wget commands will fail with "bad address"
-kubectl apply -f network-policy/04-allow-egress-dns.yaml
-
 # Test 1: frontend → backend on port 8080
-# Expected: SUCCESS (allowed by 02-allow-frontend-to-backend.yaml)
+# Expected: SUCCESS (allowed by ingress + egress policies)
 kubectl exec -it test-frontend -n devsecops-demo -- wget -qO- --timeout=3 http://test-backend:8080
 
 # Test 2: frontend → database on port 5432
-# Expected: TIMEOUT (no policy allows frontend→database, only backend→database)
+# Expected: TIMEOUT/FAIL (no egress policy allows frontend → database)
 kubectl exec -it test-frontend -n devsecops-demo -- wget -qO- --timeout=3 http://test-database:5432
 
-# Test 3: Try from default namespace (should be BLOCKED by namespace isolation)
+# Test 3: Check from default namespace (should be BLOCKED by namespace isolation)
 kubectl exec -it external-pod -n default -- wget -qO- --timeout=3 http://test-backend.devsecops-demo.svc.cluster.local:8080
 # Expected: TIMEOUT (namespace isolation blocks cross-namespace traffic)
 
-# Cleanup test pods
+# Cleanup test pods when done
 kubectl delete -f network-policy/test-pods.yaml
+```
+
+### Important: How Network Policies Work Together
+
+```
+deny-all (block everything)
+   +
+allow-egress-dns (pods can resolve DNS names)
+   +
+allow-frontend-to-backend INGRESS (backend accepts traffic from frontend)
+   +
+allow-frontend-egress-to-backend EGRESS (frontend can send traffic to backend)
+   =
+frontend ──► backend ✅ (works)
+frontend ──► database ❌ (blocked — no egress policy)
+database ──► anyone ❌ (blocked — no egress policy)
+```
 ```
 
 ---

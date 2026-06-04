@@ -1,0 +1,34 @@
+# 06-allow-frontend-egress-to-backend.yaml
+# Allow frontend pods to send traffic OUT to backend pods on port 8080
+#
+# NOTE: Network Policies work in TWO directions:
+# - INGRESS = who can come IN to a pod
+# - EGRESS = where a pod can send traffic OUT to
+#
+# 02-allow-frontend-to-backend.yaml allows INGRESS to backend FROM frontend
+# This file allows EGRESS from frontend TO backend
+# BOTH are needed when deny-all blocks both directions
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-egress-to-backend
+  namespace: devsecops-demo
+spec:
+  # Applies to frontend pods
+  podSelector:
+    matchLabels:
+      app: frontend
+
+  policyTypes:
+    - Egress
+
+  egress:
+    # Allow frontend to send traffic to backend on port 8080
+    - to:
+        - podSelector:
+            matchLabels:
+              app: backend
+      ports:
+        - protocol: TCP
+          port: 8080
