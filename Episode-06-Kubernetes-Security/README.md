@@ -230,8 +230,6 @@ frontend ──► backend ✅ (works)
 frontend ──► database ❌ (blocked — no egress policy)
 database ──► anyone ❌ (blocked — no egress policy)
 ```
-```
-
 ---
 
 ## 3️⃣ Pod Security Standards (15 min)
