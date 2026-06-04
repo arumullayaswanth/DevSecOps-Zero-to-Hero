@@ -178,24 +178,28 @@ kubectl get networkpolicies -n devsecops-demo
 # Describe a network policy
 kubectl describe networkpolicy deny-all -n devsecops-demo
 
-# Deploy test pods (these comply with restricted PSS)
+# Deploy test pods and services (these comply with restricted PSS)
 kubectl apply -f network-policy/test-pods.yaml
 
 # Wait for pods to be running
 kubectl get pods -n devsecops-demo
+kubectl get svc -n devsecops-demo
 
-# Test: frontend trying to reach backend on port 8080 (should work after allow policy)
+# IMPORTANT: Apply DNS egress first (pods need DNS to resolve service names)
+# Without this, all wget commands will fail with "bad address"
+kubectl apply -f network-policy/04-allow-egress-dns.yaml
+
+# Test 1: frontend → backend on port 8080
+# Expected: SUCCESS (allowed by 02-allow-frontend-to-backend.yaml)
 kubectl exec -it test-frontend -n devsecops-demo -- wget -qO- --timeout=3 http://test-backend:8080
-# Expected: connection successful (allowed by 02-allow-frontend-to-backend.yaml)
 
-# Test: frontend trying to reach database directly (should be BLOCKED)
+# Test 2: frontend → database on port 5432
+# Expected: TIMEOUT (no policy allows frontend→database, only backend→database)
 kubectl exec -it test-frontend -n devsecops-demo -- wget -qO- --timeout=3 http://test-database:5432
-# Expected: timeout/connection refused (no policy allows frontend→database)
 
-# Test: external namespace trying to reach backend (should be BLOCKED)
-kubectl run external-pod --image=alpine -n default -- sleep 3600
-kubectl exec -it external-pod -n default -- wget -qO- --timeout=3 http://test-backend.devsecops-demo:8080
-# Expected: timeout (namespace isolation blocks it)
+# Test 3: Try from default namespace (should be BLOCKED by namespace isolation)
+kubectl exec -it external-pod -n default -- wget -qO- --timeout=3 http://test-backend.devsecops-demo.svc.cluster.local:8080
+# Expected: TIMEOUT (namespace isolation blocks cross-namespace traffic)
 
 # Cleanup test pods
 kubectl delete -f network-policy/test-pods.yaml
