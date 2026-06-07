@@ -1,0 +1,240 @@
+# GitHub Actions Workflow for Terraform with Vault (Single Environment)
+#
+# Flow: GitHub Actions → Vault (EC2) → AWS (temporary credentials)
+#
+# REQUIRED GitHub Variables (Settings → Secrets and variables → Actions → Variables):
+#   VAULT_ADDR              = http://YOUR_EC2_PUBLIC_IP:8200
+#   VAULT_ROLE              = github-actions-role
+#   AWS_REGION              = ap-south-1
+#   TF_STATE_BUCKET         = devsecops-terraform-state-2025
+#   TF_LOCK_TABLE           = terraform-state-lock
+
+name: Terraform with Vault
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Episode-07-IaC-Security/terraform-vault/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "Episode-07-IaC-Security/terraform-vault/**"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Terraform action to perform"
+        required: true
+        default: "plan"
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+env:
+  TF_WORKING_DIR: Episode-07-IaC-Security/terraform-vault
+
+jobs:
+  # ============================================================
+  # JOB 1: Security Scan
+  # ============================================================
+  checkov:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.action != 'destroy')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: Episode-07-IaC-Security/terraform-vault
+          framework: terraform
+          output_format: cli
+          soft_fail: false
+
+  # ============================================================
+  # JOB 2: Terraform Plan
+  # ============================================================
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'plan')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Vault (JWT)
+        uses: hashicorp/vault-action@v3
+        with:
+          url: ${{ vars.VAULT_ADDR }}
+          method: jwt
+          role: ${{ vars.VAULT_ROLE }}
+          jwtGithubAudience: sigstore
+          exportToken: true
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.0"
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ vars.TF_LOCK_TABLE }}" \
+            -backend-config="encrypt=true"
+
+      - name: Terraform Format Check
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
+        run: |
+          terraform plan -no-color -out=tfplan \
+            -var="aws_region=${{ vars.AWS_REGION }}" \
+        continue-on-error: true
+
+      - name: Post Plan to PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const output = `#### Terraform Plan (Vault) 📖
+            \`\`\`
+            ${{ steps.plan.outputs.stdout }}
+            \`\`\`
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+  # ============================================================
+  # JOB 3: Terraform Apply
+  # ============================================================
+  apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    if: >
+      (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply')
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Vault (JWT)
+        uses: hashicorp/vault-action@v3
+        with:
+          url: ${{ vars.VAULT_ADDR }}
+          method: jwt
+          role: ${{ vars.VAULT_ROLE }}
+          jwtGithubAudience: sigstore
+          exportToken: true
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.0"
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ vars.TF_LOCK_TABLE }}" \
+            -backend-config="encrypt=true"
+
+      - name: Terraform Plan
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
+        run: |
+          terraform plan -no-color \
+            -var="aws_region=${{ vars.AWS_REGION }}" \
+
+      - name: Terraform Apply
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
+        run: |
+          terraform apply -auto-approve \
+            -var="aws_region=${{ vars.AWS_REGION }}" \
+
+  # ============================================================
+  # JOB 4: Terraform Destroy (manual trigger only)
+  # ============================================================
+  destroy:
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Vault (JWT)
+        uses: hashicorp/vault-action@v3
+        with:
+          url: ${{ vars.VAULT_ADDR }}
+          method: jwt
+          role: ${{ vars.VAULT_ROLE }}
+          jwtGithubAudience: sigstore
+          exportToken: true
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.0"
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ vars.TF_LOCK_TABLE }}" \
+            -backend-config="encrypt=true"
+
+      - name: Terraform Destroy
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
+        run: |
+          terraform destroy -auto-approve \
+            -var="aws_region=${{ vars.AWS_REGION }}" \
