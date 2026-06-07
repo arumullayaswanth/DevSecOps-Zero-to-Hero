@@ -216,37 +216,7 @@ The workflow uses `${{ vars.AWS_ROLE_ARN }}`, `${{ vars.AWS_REGION }}`, etc. —
 
 ---
 
-## Step 7: Update Terraform Backend Configuration
-
-1. Open `Episode-07-IaC-Security/terraform-OIDC/backend.tf`
-2. Make sure the bucket name matches what you created in Step 1:
-   ```hcl
-   bucket         = "devsecops-terraform-state-2025"
-   key            = "production/terraform.tfstate"
-   region         = "ap-south-1"
-   encrypt        = true
-   dynamodb_table = "terraform-state-lock"
-   ```
-
----
-
-## Step 8: Create terraform.tfvars (Do NOT commit this)
-
-1. Navigate to `Episode-07-IaC-Security/terraform-OIDC/`
-2. Create a file called `terraform.tfvars`:
-   ```
-   aws_region       = "ap-south-1"
-   environment      = "production"
-   vpc_cidr         = "10.0.0.0/16"
-   instance_type    = "t3.micro"
-   allowed_ssh_cidr = "YOUR_IP/32"
-   ```
-3. Replace `YOUR_IP` with your actual public IP (Google "what is my IP")
-4. This file is in `.gitignore` — it will NOT be pushed to GitHub
-
----
-
-## Step 9: Push Code and Create a Pull Request
+## Step 7: Push Code and Create a Pull Request
 
 ```bash
 # Create a new branch
@@ -269,7 +239,7 @@ Now go to GitHub:
 
 ---
 
-## Step 10: Watch GitHub Actions Run Automatically
+## Step 8: Watch GitHub Actions Run Automatically
 
 Once you create the PR, GitHub Actions will automatically:
 
@@ -284,7 +254,7 @@ You can see this at: GitHub → Your repo → Actions tab
 
 ---
 
-## Step 11: Review and Merge the PR
+## Step 9: Review and Merge the PR
 
 1. Look at the plan in the PR comment — it shows what will be created
 2. If everything looks good, click "Merge pull request"
@@ -293,7 +263,7 @@ You can see this at: GitHub → Your repo → Actions tab
 
 ---
 
-## Step 12: Verify Infrastructure Was Created
+## Step 10: Verify Infrastructure Was Created
 
 ```bash
 # Check in AWS Console
@@ -304,7 +274,7 @@ You can see this at: GitHub → Your repo → Actions tab
 
 ---
 
-## Step 13: Destroy Infrastructure (When You're Done)
+## Step 11: Destroy Infrastructure (When You're Done)
 
 Two options:
 
