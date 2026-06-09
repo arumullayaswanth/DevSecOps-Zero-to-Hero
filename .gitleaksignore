@@ -5,6 +5,4 @@ Day-4/yash.txt:generic-api-key:7
 Day-4/yash.txt:generic-api-key:8
 Day-4/yash.txt:private-key:2
 
-# Episode 06 — Kubernetes Secrets (dummy values for demonstration)
-Episode-06-Kubernetes-Security/secrets/01-secret-opaque.yaml:generic-api-key:20
-Episode-06-Kubernetes-Security/secrets/02-secret-docker-registry.yaml:generic-api-key:23
+
