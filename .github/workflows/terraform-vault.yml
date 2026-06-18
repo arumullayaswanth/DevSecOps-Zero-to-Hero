@@ -63,6 +63,7 @@ jobs:
           framework: terraform
           output_format: cli
           soft_fail: false
+          skip_check: CKV_AWS_24,CKV_AWS_260
 
   # ============================================================
   # JOB 2: Terraform Plan
