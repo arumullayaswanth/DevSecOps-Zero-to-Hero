@@ -88,8 +88,10 @@ vault --version
 # Create Vault config directory
 sudo mkdir -p /etc/vault.d
 sudo mkdir -p /opt/vault/data
+```
 
-# Create Vault config file
+### Create Vault config file
+```bash
 sudo tee /etc/vault.d/vault.hcl > /dev/null <<EOF
 storage "file" {
   path = "/opt/vault/data"
@@ -108,7 +110,15 @@ api_addr = "http://YOUR_EC2_PUBLIC_IP:8200"
 ui = true
 EOF
 
-# Set permissions
+```
+### verify the config file was written correctly are not
+```bash
+cat /etc/vault.d/vault.hcl
+```
+
+
+### Set permissions
+```bash
 sudo chown -R vault:vault /etc/vault.d /opt/vault
 ```
 
@@ -124,8 +134,9 @@ That's the **only thing** you change in this step. Everything else stays as-is.
 
 ## Step 4: Start Vault as a Service
 
+#### Create systemd service
+
 ```bash
-# Create systemd service
 sudo tee /etc/systemd/system/vault.service > /dev/null <<EOF
 [Unit]
 Description=HashiCorp Vault
@@ -141,7 +152,10 @@ LimitNOFILE=65536
 [Install]
 WantedBy=multi-user.target
 EOF
+```
+#### Start Vault
 
+```bash
 # Start Vault
 sudo systemctl enable vault
 sudo systemctl start vault
@@ -152,32 +166,40 @@ sudo systemctl status vault
 
 ## Step 5: Initialize and Unseal Vault
 
+#### Set Vault address
 ```bash
-# Set Vault address
 export VAULT_ADDR="http://127.0.0.1:8200"
-
-# Initialize Vault (SAVE THESE KEYS SECURELY!)
+```
+#### Initialize Vault (SAVE THESE KEYS SECURELY!)
+```bash
 vault operator init -key-shares=5 -key-threshold=3
+```
+- `key-shares=5` → generates 5 unseal keys
+- `key-threshold=3` → you need any 3 of 5 to unseal
 
-# Output will show:
-# Unseal Key 1: xxxxx
-# Unseal Key 2: xxxxx
-# Unseal Key 3: xxxxx
-# Unseal Key 4: xxxxx
-# Unseal Key 5: xxxxx
-# Initial Root Token: hvs.xxxxx
-#
-# SAVE THESE SOMEWHERE SAFE (password manager, not in git!)
+#### SAVE THESE SOMEWHERE SAFE (password manager, not in git!)
+![Vault Init Output](images/vault.png)
 
-# Unseal Vault (need 3 of 5 keys)
+#### Unseal Vault (need 3 of 5 keys)(Run this in ec2)
+
+```bash
 vault operator unseal <KEY_1>
 vault operator unseal <KEY_2>
 vault operator unseal <KEY_3>
+```
 
-# Login with root token
+> Replace `<KEY_1>`, `<KEY_2>`, `<KEY_3>` with any 3 unseal keys from the output above.
+
+#### Login with root token (run it on your EC2)
+```bash
+export VAULT_ADDR="http://127.0.0.1:8200"
+```
+```bash
 vault login <ROOT_TOKEN>
 ```
 
+> Replace `<ROOT_TOKEN>` with the Initial Root Token from the output above.
+```
 ---
 
 ## Step 6: Enable AWS Secrets Engine
