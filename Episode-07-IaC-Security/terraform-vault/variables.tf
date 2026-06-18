@@ -1,8 +1,3 @@
-# variables.tf
-# All configurable values
-# Defaults are set here for non-sensitive values
-# Only mandatory/sensitive values come from GitHub Variables
-
 variable "aws_region" {
   description = "AWS region to deploy resources"
   type        = string
@@ -33,7 +28,12 @@ variable "instance_type" {
 }
 
 variable "allowed_ssh_cidr" {
-  description = "CIDR block allowed to SSH (for practice: open to all)"
+  description = "CIDR block allowed to SSH"
   type        = string
-  default     = "0.0.0.0/0"
+}
+
+variable "replica_region" {
+  description = "AWS region for S3 cross-region replication"
+  type        = string
+  default     = "us-east-1"
 }
