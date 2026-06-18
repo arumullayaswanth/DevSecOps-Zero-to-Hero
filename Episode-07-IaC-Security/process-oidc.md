@@ -55,9 +55,8 @@ This tells AWS: "I trust GitHub. When GitHub Actions says it's from my repo, bel
 2. Click "Add provider"
 3. Provider type: **OpenID Connect**
 4. Provider URL: `https://token.actions.githubusercontent.com`
-5. Click "Get thumbprint"
-6. Audience: `sts.amazonaws.com`
-7. Click "Add provider"
+5. Audience: `sts.amazonaws.com`
+6. Click "Add provider"
 
 ---
 
@@ -71,11 +70,14 @@ This role gives GitHub Actions permission to create infrastructure. It trusts ON
 2. Trusted entity type: **Web identity**
 3. Identity provider: Select `token.actions.githubusercontent.com`
 4. Audience: `sts.amazonaws.com`
-5. Click "Next"
-6. Attach permissions: Select `AdministratorAccess` (for demo; use custom policy in production)
-7. Click "Next"
-8. Role name: `GitHubActions-Terraform-Role`
-9. Click "Create role"
+5. GitHub organization: `arumullayaswanth` (your GitHub username)
+6. GitHub repository: `DevSecOps-Zero-to-Hero`
+7. GitHub branch: `main`
+8. Click "Next"
+9. Attach permissions: Select `AdministratorAccess` (for demo; use custom policy in production)
+10. Click "Next"
+11. Role name: `GitHubActions-Terraform-Role`
+12. Click "Create role"
 
 ### Now edit the trust policy to restrict to YOUR repo:
 
@@ -109,14 +111,6 @@ This role gives GitHub Actions permission to create infrastructure. It trusts ON
 4. Replace `YOUR_ACCOUNT_ID` with your actual AWS account ID (12-digit number)
 5. Replace `arumullayaswanth/DevSecOps-Zero-to-Hero` with your GitHub username/repo
 6. Click "Update policy"
-
-### How to find your AWS Account ID:
-
-```bash
-aws sts get-caller-identity --query "Account" --output text
-```
-
-Or: AWS Console → Click your username (top right) → Account ID is shown
 
 ---
 

@@ -32,14 +32,20 @@ variable "allowed_ssh_cidr" {
   type        = string
 }
 
-
-// change s3 backet name to your backet name Terraform state storage
+####################################################################
+# change s3 backet name to your backet name Terraform state storage
+####################################################################
 variable "tf_state_bucket" {
   description = "S3 bucket name for Terraform state storage"
   type        = string
   default     = "devsecops-terraform-state-0001"
 }
 
+
+
+##########################################################################
+# changes DynamoDB table name to your DynamoDB table name
+##########################################################################
 variable "tf_lock_table" {
   description = "DynamoDB table name for Terraform state locking"
   type        = string
