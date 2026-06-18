@@ -9,12 +9,6 @@ variable "environment" {
   default     = "production"
 }
 
-variable "vault_aws_role" {
-  description = "Vault AWS secrets engine role name"
-  type        = string
-  default     = "terraform-role"
-}
-
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
   type        = string
@@ -31,10 +25,4 @@ variable "allowed_ssh_cidr" {
   description = "CIDR block allowed to SSH (for practice: open to all)"
   type        = string
   default     = "0.0.0.0/0"
-}
-
-variable "replica_region" {
-  description = "AWS region for S3 cross-region replication"
-  type        = string
-  default     = "us-east-1"
 }
