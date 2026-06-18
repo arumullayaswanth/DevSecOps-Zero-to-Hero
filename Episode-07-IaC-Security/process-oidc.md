@@ -96,9 +96,7 @@ This role gives GitHub Actions permission to create infrastructure. It trusts ON
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
-        },
-        "StringLike": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
           "token.actions.githubusercontent.com:sub": [
             "repo:arumullayaswanth/DevSecOps-Zero-to-Hero:ref:refs/heads/main",
             "repo:arumullayaswanth/DevSecOps-Zero-to-Hero:pull_request"
