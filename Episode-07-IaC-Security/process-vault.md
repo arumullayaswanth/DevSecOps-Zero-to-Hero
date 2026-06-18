@@ -470,3 +470,71 @@ git push -u origin test-vault-infra
 | Security level | High | Very High |
 | Best for | Single cloud, small team | Multi-cloud, enterprise, compliance |
 | When to use | Most projects | Regulated industries, multi-team |
+
+
+---
+
+## Complete Cleanup (Delete Everything When Done)
+
+After you're done practicing, follow these steps to delete EVERYTHING:
+
+### Step 1: Destroy Terraform Infrastructure
+
+Go to GitHub → Actions → "Terraform with Vault" → Run workflow → Select `destroy`
+
+Wait for it to complete. This deletes: VPC, EC2, S3 buckets, IAM roles, KMS keys, etc.
+
+### Step 2: Revoke All Vault Leases (delete leftover IAM users)
+
+SSH into your Vault EC2:
+
+```bash
+export VAULT_ADDR="http://127.0.0.1:8200"
+vault login <YOUR_ROOT_TOKEN>
+
+# Delete all IAM users Vault created
+vault lease revoke -prefix aws/creds/terraform-role
+```
+
+### Step 3: Delete S3 State Bucket
+
+AWS Console → S3 → `devsecops-vault-state-2025` → Empty bucket → Delete bucket
+
+### Step 4: Delete DynamoDB Lock Table
+
+AWS Console → DynamoDB → Tables → `vault-state-lock` → Delete table
+
+### Step 5: Terminate Vault EC2 Instance
+
+AWS Console → EC2 → Instances → Select `vault-server` → Instance state → Terminate
+
+### Step 6: Delete IAM Role (Vault-EC2-Role)
+
+AWS Console → IAM → Roles → Search `Vault-EC2-Role` → Delete
+
+### Step 7: Delete OIDC Provider (if created for this)
+
+AWS Console → IAM → Identity providers → Delete the GitHub OIDC provider (if no longer needed)
+
+### Step 8: Delete GitHub Variables
+
+GitHub → Repo → Settings → Secrets and variables → Actions → Variables → Delete:
+- `VAULT_ADDR`
+- `VAULT_ROLE`
+- `VAULT_STATE_BUCKET`
+- `VAULT_LOCK_TABLE`
+
+### Step 9: Verify Nothing is Left
+
+```bash
+# Check for leftover IAM users
+aws iam list-users | grep vault
+
+# Check for leftover EC2 instances
+aws ec2 describe-instances --filters "Name=tag:ManagedBy,Values=Terraform-Vault" --query "Reservations[].Instances[].InstanceId"
+
+# Check for leftover S3 buckets
+aws s3 ls | grep vault
+```
+
+If all commands return empty — cleanup is complete. Nothing left.
