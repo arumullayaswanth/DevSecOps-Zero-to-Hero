@@ -91,16 +91,15 @@ This role gives GitHub Actions permission to create infrastructure. It trusts ON
     {
       "Effect": "Allow",
       "Principal": {
-        "Federated": "arn:aws:iam::YOUR_ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com"
+        "Federated": "arn:aws:iam::713939171080:oidc-provider/token.actions.githubusercontent.com"
       },
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-          "token.actions.githubusercontent.com:sub": [
-            "repo:arumullayaswanth/DevSecOps-Zero-to-Hero:ref:refs/heads/main",
-            "repo:arumullayaswanth/DevSecOps-Zero-to-Hero:pull_request"
-          ]
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        },
+        "StringLike": {
+          "token.actions.githubusercontent.com:sub": "repo:arumullayaswanth/DevSecOps-Zero-to-Hero:*"
         }
       }
     }
