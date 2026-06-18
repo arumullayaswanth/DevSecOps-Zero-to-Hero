@@ -28,8 +28,9 @@ variable "instance_type" {
 }
 
 variable "allowed_ssh_cidr" {
-  description = "CIDR block allowed to SSH"
+  description = "CIDR block allowed to SSH (for practice: open to all)"
   type        = string
+  default     = "0.0.0.0/0"
 }
 
 variable "replica_region" {
