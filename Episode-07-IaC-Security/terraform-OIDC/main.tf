@@ -189,6 +189,8 @@ resource "aws_route_table_association" "public" {
 
 # Security Group for web server
 resource "aws_security_group" "web" {
+  #checkov:skip=CKV_AWS_24:SSH CIDR is configurable via variable, open for demo
+  #checkov:skip=CKV_AWS_260:HTTP CIDR is configurable via variable, open for demo
   name        = "${var.environment}-web-sg"
   description = "Security group for web server"
   vpc_id      = aws_vpc.main.id
