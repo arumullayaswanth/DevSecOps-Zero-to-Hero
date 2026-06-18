@@ -77,6 +77,44 @@ This role gives GitHub Actions permission to create infrastructure. It trusts ON
 10. Click "Next"
 11. Role name: `GitHubActions-Terraform-Role`
 12. Click "Create role"
+
+### Step 4.2: Edit Trust Policy to Allow PRs and Main Branch
+
+1. Go to IAM → Roles → `GitHubActions-Terraform-Role`
+2. Click "Trust relationships" tab → "Edit trust policy"
+3. Replace with:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::YOUR_ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        },
+        "StringLike": {
+          "token.actions.githubusercontent.com:sub": [
+            "repo:arumullayaswanth/DevSecOps-Zero-to-Hero:ref:refs/heads/main",
+            "repo:arumullayaswanth/DevSecOps-Zero-to-Hero:pull_request"
+          ]
+        }
+      }
+    }
+  ]
+}
+```
+
+4. Replace `YOUR_ACCOUNT_ID` with your AWS account ID (12-digit number)
+5. Replace `arumullayaswanth/DevSecOps-Zero-to-Hero` with your GitHub username/repo
+6. Click "Update policy"
+
+## copy the role ANR
 2. Copy the "ARN" at the top. It looks like:
    ```
    arn:aws:iam::123456789012:role/GitHubActions-Terraform-Role
@@ -103,7 +141,7 @@ Instead of hardcoding values in the workflow file, we store them in GitHub Varia
 **What's NOT in GitHub Variables (set directly in code):**
 - `TF_WORKING_DIR` = `Episode-07-IaC-Security/terraform-OIDC` (in workflow yml)
 - `TF_STATE_KEY` = `production/terraform.tfstate` (in backend.tf)
-| `TF_STATE_BUCKET` | S3 bucket name from Step 1 | `devsecops-terraform-state-0001` |
+
 ### Why Variables and NOT Secrets?
 
 - **Variables** (`vars.XX`) = For non-sensitive config (region, paths, role ARN)
