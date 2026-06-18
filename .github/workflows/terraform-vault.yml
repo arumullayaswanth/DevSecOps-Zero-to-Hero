@@ -78,7 +78,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Authenticate to Vault (JWT)
+      # Vault Action: Authenticates via JWT AND fetches AWS credentials
+      # Sets AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN as env vars
+      - name: Get AWS credentials from Vault
         uses: hashicorp/vault-action@v3
         with:
           url: ${{ vars.VAULT_ADDR }}
@@ -86,6 +88,10 @@ jobs:
           role: ${{ vars.VAULT_ROLE }}
           jwtGithubAudience: sigstore
           exportToken: true
+          secrets: |
+            aws/creds/terraform-role access_key | AWS_ACCESS_KEY_ID ;
+            aws/creds/terraform-role secret_key | AWS_SECRET_ACCESS_KEY ;
+            aws/creds/terraform-role security_token | AWS_SESSION_TOKEN
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -94,8 +100,6 @@ jobs:
 
       - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
         run: |
           terraform init \
             -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
@@ -114,11 +118,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
-        run: |
-          terraform plan -no-color -out=tfplan \
-            -var="aws_region=${{ vars.AWS_REGION }}" \
+        run: terraform plan -no-color -out=tfplan -var="aws_region=${{ vars.AWS_REGION }}"
         continue-on-error: true
 
       - name: Post Plan to PR
@@ -153,7 +153,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Authenticate to Vault (JWT)
+      - name: Get AWS credentials from Vault
         uses: hashicorp/vault-action@v3
         with:
           url: ${{ vars.VAULT_ADDR }}
@@ -161,6 +161,10 @@ jobs:
           role: ${{ vars.VAULT_ROLE }}
           jwtGithubAudience: sigstore
           exportToken: true
+          secrets: |
+            aws/creds/terraform-role access_key | AWS_ACCESS_KEY_ID ;
+            aws/creds/terraform-role secret_key | AWS_SECRET_ACCESS_KEY ;
+            aws/creds/terraform-role security_token | AWS_SESSION_TOKEN
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -169,8 +173,6 @@ jobs:
 
       - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
         run: |
           terraform init \
             -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
@@ -180,19 +182,11 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
-        run: |
-          terraform plan -no-color \
-            -var="aws_region=${{ vars.AWS_REGION }}" \
+        run: terraform plan -no-color -var="aws_region=${{ vars.AWS_REGION }}"
 
       - name: Terraform Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
-        run: |
-          terraform apply -auto-approve \
-            -var="aws_region=${{ vars.AWS_REGION }}" \
+        run: terraform apply -auto-approve -var="aws_region=${{ vars.AWS_REGION }}"
 
   # ============================================================
   # JOB 4: Terraform Destroy (manual trigger only)
@@ -207,7 +201,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Authenticate to Vault (JWT)
+      - name: Get AWS credentials from Vault
         uses: hashicorp/vault-action@v3
         with:
           url: ${{ vars.VAULT_ADDR }}
@@ -215,6 +209,10 @@ jobs:
           role: ${{ vars.VAULT_ROLE }}
           jwtGithubAudience: sigstore
           exportToken: true
+          secrets: |
+            aws/creds/terraform-role access_key | AWS_ACCESS_KEY_ID ;
+            aws/creds/terraform-role secret_key | AWS_SECRET_ACCESS_KEY ;
+            aws/creds/terraform-role security_token | AWS_SESSION_TOKEN
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -223,8 +221,6 @@ jobs:
 
       - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
         run: |
           terraform init \
             -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
@@ -234,8 +230,4 @@ jobs:
 
       - name: Terraform Destroy
         working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
-        run: |
-          terraform destroy -auto-approve \
-            -var="aws_region=${{ vars.AWS_REGION }}" \
+        run: terraform destroy -auto-approve -var="aws_region=${{ vars.AWS_REGION }}"
