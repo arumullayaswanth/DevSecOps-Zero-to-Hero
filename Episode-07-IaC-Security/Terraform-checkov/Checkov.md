@@ -4,7 +4,7 @@
 
 ## Architecture
 
-![Architecture Checkov Scans](images/Architecture%20Checkov%20scans.jpg)
+![Architecture Checkov Scans](../images/Architecture%20Checkov%20scans.jpg)
 
 ---
 
