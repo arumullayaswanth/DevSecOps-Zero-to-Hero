@@ -6,8 +6,8 @@
 #   VAULT_ADDR              = http://YOUR_EC2_PUBLIC_IP:8200
 #   VAULT_ROLE              = github-actions-role
 #   AWS_REGION              = ap-south-1
-#   TF_STATE_BUCKET         = devsecops-terraform-state-0001
-#   TF_LOCK_TABLE           = terraform-state-lock
+#   VAULT_STATE_BUCKET      = devsecops-vault-state-2025
+#   VAULT_LOCK_TABLE        = vault-state-lock
 
 name: Terraform with Vault
 run-name: "Terraform with Vault infrastructure ${{ github.event.inputs.action || 'plan' }}"
@@ -106,9 +106,9 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           terraform init \
-            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="bucket=${{ vars.VAULT_STATE_BUCKET }}" \
             -backend-config="region=${{ vars.AWS_REGION }}" \
-            -backend-config="dynamodb_table=${{ vars.TF_LOCK_TABLE }}" \
+            -backend-config="dynamodb_table=${{ vars.VAULT_LOCK_TABLE }}" \
             -backend-config="encrypt=true"
 
       - name: Terraform Format Check
@@ -181,9 +181,9 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           terraform init \
-            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="bucket=${{ vars.VAULT_STATE_BUCKET }}" \
             -backend-config="region=${{ vars.AWS_REGION }}" \
-            -backend-config="dynamodb_table=${{ vars.TF_LOCK_TABLE }}" \
+            -backend-config="dynamodb_table=${{ vars.VAULT_LOCK_TABLE }}" \
             -backend-config="encrypt=true"
 
       - name: Terraform Plan
@@ -231,9 +231,9 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           terraform init \
-            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="bucket=${{ vars.VAULT_STATE_BUCKET }}" \
             -backend-config="region=${{ vars.AWS_REGION }}" \
-            -backend-config="dynamodb_table=${{ vars.TF_LOCK_TABLE }}" \
+            -backend-config="dynamodb_table=${{ vars.VAULT_LOCK_TABLE }}" \
             -backend-config="encrypt=true"
 
       - name: Terraform Destroy

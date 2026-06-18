@@ -33,6 +33,35 @@ This document explains how to deploy HashiCorp Vault on an EC2 instance and conf
 
 ---
 
+## Step 0: Create S3 Bucket and DynamoDB Table for Terraform State
+
+### Create S3 Bucket:
+
+1. Open AWS Console → Search "S3" → Click "Create bucket"
+2. Bucket name: `devsecops-vault-state-2025` (must be globally unique, change if taken)
+3. Region: `ap-south-1` (Mumbai) or your preferred region
+4. Enable "Bucket Versioning" → Enabled
+5. Enable "Default encryption" → SSE-S3 (AES-256)
+6. Block all public access → ✅ Keep all checked
+7. Click "Create bucket"
+
+### Create DynamoDB Table:
+
+1. Open AWS Console → Search "DynamoDB" → Click "Create table"
+2. Table name: `vault-state-lock`
+3. Partition key: `LockID` (type: String)
+4. Leave everything else default
+5. Click "Create table"
+
+### ⚠️ What YOU need to change in GitHub Variables later (Step 8):
+
+| Variable | Value |
+|----------|-------|
+| `VAULT_STATE_BUCKET` | The bucket name you created above |
+| `VAULT_LOCK_TABLE` | The DynamoDB table name you created above |
+
+---
+
 ## Step 1: Launch EC2 Instance for Vault
 
 ### Create IAM Role for EC2 first:
@@ -355,8 +384,8 @@ Only add these **mandatory** variables (everything else has defaults in the code
 | `VAULT_ADDR` | `http://YOUR_EC2_PUBLIC_IP:8200` | Where Vault is running |
 | `VAULT_ROLE` | `github-actions-role` | Vault role for JWT auth |
 | `AWS_REGION` | Your region (e.g., `ap-south-1`) | Where to create infrastructure |
-| `TF_STATE_BUCKET` | Your S3 bucket name | Where state is stored |
-| `TF_LOCK_TABLE` | `terraform-state-lock` | DynamoDB lock table |
+| `VAULT_STATE_BUCKET` | Your S3 bucket name | Where state is stored |
+| `VAULT_LOCK_TABLE` | DynamoDB table name | State locking |
 
 **What's NOT in GitHub Variables (set directly in code):**
 - `TF_WORKING_DIR` = `Episode-07-IaC-Security/terraform-vault` (in workflow yml)
