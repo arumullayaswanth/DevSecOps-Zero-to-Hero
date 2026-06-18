@@ -14,6 +14,7 @@
 #   TF_LOCK_TABLE       = terraform-state-lock
 
 name: Terraform with OIDC (OpenID Connect)
+run-name: "Terraform OIDC (OpenID Connect) infra ${{ github.event.inputs.action || 'plan' }}"
 
 on:
   push:

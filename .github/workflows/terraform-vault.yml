@@ -10,6 +10,7 @@
 #   TF_LOCK_TABLE           = terraform-state-lock
 
 name: Terraform with Vault
+run-name: "Terraform with Vault infra ${{ github.event.inputs.action || 'plan' }}"
 
 on:
   push:
