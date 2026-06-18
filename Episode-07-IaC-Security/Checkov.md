@@ -2,6 +2,12 @@
 
 ---
 
+## Architecture
+
+![Architecture Checkov Scans](images/Architecture%20Checkov%20scans.jpg)
+
+---
+
 ## Problem 
 
 Terraform can deploy insecure infrastructure without warnings:
