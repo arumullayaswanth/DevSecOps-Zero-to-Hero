@@ -70,7 +70,6 @@ This role gives GitHub Actions permission to create infrastructure. It trusts ON
 3. Identity provider: Select `token.actions.githubusercontent.com`
 4. Audience: `sts.amazonaws.com`
 5. GitHub organization: `arumullayaswanth` (your GitHub username)
-5. GitHub organization: `arumullayaswanth` (your GitHub username)
 6. GitHub repository: `DevSecOps-Zero-to-Hero`
 7. GitHub branch: `main`
 8. Click "Next"
@@ -82,11 +81,11 @@ This role gives GitHub Actions permission to create infrastructure. It trusts ON
    ```
    arn:aws:iam::123456789012:role/GitHubActions-Terraform-Role
    ```
-3. Save this — you need it in Step 6
+3. Save this — you need it in Step 5
 
 ---
 
-## Step 6: Add Variables in GitHub Repository Settings
+## Step 5: Add Variables in GitHub Repository Settings
 
 Instead of hardcoding values in the workflow file, we store them in GitHub Variables.
 
@@ -117,7 +116,7 @@ The Role ARN is not a secret — it's just a resource identifier. Anyone can see
 The workflow uses `${{ vars.AWS_ROLE_ARN }}`, `${{ vars.AWS_REGION }}`, etc. — all values come from GitHub Variables. You never need to edit the `.yml` file to change configuration.
 
 ---
-## Step 7: Watch GitHub Actions Run Automatically
+## Step 6: Watch GitHub Actions Run Automatically
 
 Once you create the PR, GitHub Actions will automatically:
 
@@ -132,7 +131,7 @@ You can see this at: GitHub → Your repo → Actions tab
 
 ---
 
-## Step 8: Review and Merge the PR
+## Step 7: Review and Merge the PR
 
 1. Look at the plan in the PR comment — it shows what will be created
 2. If everything looks good, click "Merge pull request"
@@ -141,7 +140,7 @@ You can see this at: GitHub → Your repo → Actions tab
 
 ---
 
-## Step 9: Verify Infrastructure Was Created
+## Step 8: Verify Infrastructure Was Created
 
 ```bash
 # Check in AWS Console
@@ -152,7 +151,7 @@ You can see this at: GitHub → Your repo → Actions tab
 
 ---
 
-## Step 11: Destroy Infrastructure (When You're Done)
+## Step 9: Destroy Infrastructure (When You're Done)
 
 Two options:
 
