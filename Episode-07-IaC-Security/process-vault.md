@@ -6,15 +6,7 @@ This document explains how to deploy HashiCorp Vault on an EC2 instance and conf
 
 ## Architecture
 
-```
-GitHub Actions → (JWT Token) → Vault (EC2) → (STS) → AWS (temporary credentials)
-     │                              │                        │
-     │  1. Send JWT token           │  2. Validate JWT       │
-     │                              │  3. Generate AWS creds │
-     │                              │                        │
-     └──── 4. Use temp creds ───────┴────────────────────────┘
-                to run Terraform
-```
+![Architecture HashiCorp Vault](images/Architecture%20HashiCorp%20Vault.jpg)
 
 ---
 
