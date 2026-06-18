@@ -30,6 +30,7 @@ variable "instance_type" {
 variable "allowed_ssh_cidr" {
   description = "CIDR block allowed to SSH"
   type        = string
+  default     = "0.0.0.0/0"
 }
 
 ####################################################################
