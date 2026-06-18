@@ -199,7 +199,6 @@ vault login <ROOT_TOKEN>
 ```
 
 > Replace `<ROOT_TOKEN>` with the Initial Root Token from the output above.
-```
 ---
 
 ## Step 6: Enable AWS Secrets Engine
@@ -207,16 +206,18 @@ vault login <ROOT_TOKEN>
 This tells Vault how to generate temporary AWS credentials.
 Vault uses the EC2 instance's IAM Role (attached in Step 1) — no access keys needed.
 
+#### Enable the AWS secrets engine
 ```bash
-# Enable the AWS secrets engine
 vault secrets enable aws
-
+```
+```bash
 # Configure Vault to use the EC2 instance role (NO access keys!)
 # Vault automatically picks up credentials from the IAM Role attached to the EC2
-# Replace YOUR_REGION with your actual AWS region (e.g., ap-south-1, us-east-1)
+# Replace YOUR_REGION with your actual AWS region (e.g., ap-south-1)
 vault write aws/config/root \
   region=YOUR_REGION
-
+```
+```bash
 # Create a role that Terraform will use
 # This role generates STS credentials with AdministratorAccess
 vault write aws/roles/terraform-role \
@@ -224,7 +225,8 @@ vault write aws/roles/terraform-role \
   policy_arns=arn:aws:iam::aws:policy/AdministratorAccess \
   default_ttl=1h \
   max_ttl=2h
-
+```
+```bash
 # Test: Generate temporary credentials
 vault read aws/creds/terraform-role
 # Output:
@@ -243,16 +245,18 @@ vault read aws/creds/terraform-role
 
 This tells Vault to trust GitHub Actions OIDC tokens.
 
+### Enable JWT auth method
 ```bash
-# Enable JWT auth method
 vault auth enable jwt
-
-# Configure JWT auth to trust GitHub's OIDC provider
+```
+### Configure JWT auth to trust GitHub's OIDC provider
+```bash
 vault write auth/jwt/config \
   bound_issuer="https://token.actions.githubusercontent.com" \
   oidc_discovery_url="https://token.actions.githubusercontent.com"
-
-# Create a policy for GitHub Actions (what it can access in Vault)
+```
+### Create a policy for GitHub Actions (what it can access in Vault)
+```bash
 vault policy write github-actions-policy - <<EOF
 # Allow reading AWS credentials
 path "aws/creds/terraform-role" {
@@ -264,23 +268,83 @@ path "aws/sts/terraform-role" {
   capabilities = ["read"]
 }
 EOF
+```
+### Create a role that maps GitHub repos to Vault policies
 
-# Create a role that maps GitHub repos to Vault policies
-vault write auth/jwt/role/github-actions-role \
-  role_type="jwt" \
-  bound_audiences="sigstore" \
-  bound_claims_type="glob" \
-  bound_claims="/repository=arumullayaswanth/DevSecOps-Zero-to-Hero" \
-  user_claim="repository" \
-  policies="github-actions-policy" \
-  ttl=1h
+```bash
+curl --header "X-Vault-Token: <YOUR_ROOT_TOKEN>" \
+  --request POST \
+  --data '{
+    "role_type": "jwt",
+    "bound_audiences": ["sigstore"],
+    "bound_claims_type": "glob",
+    "bound_claims": {"repository": "<YOUR_GITHUB_USERNAME/REPO_NAME>"},
+    "user_claim": "repository",
+    "policies": ["github-actions-policy"],
+    "ttl": "1h"
+  }' \
+  http://127.0.0.1:8200/v1/auth/jwt/role/github-actions-role
 
-# IMPORTANT: Change 'arumullayaswanth/DevSecOps-Zero-to-Hero' to YOUR repo
+#IMPORTANT: Change 'arumullayaswanth/DevSecOps-Zero-to-Hero' to YOUR repo
+#MPORTANT: Change the X-Vault-Token value to YOUR root token from Step 5
+#Example like this : 
+
+```
+
+```bash
+curl --header "X-Vault-Token: <YOUR_ROOT_TOKEN>" \
+  --request POST \
+  --data '{
+    "role_type": "jwt",
+    "bound_audiences": ["sigstore"],
+    "bound_claims_type": "glob",
+    "bound_claims": {"repository": "arumullayaswanth/DevSecOps-Zero-to-Hero"},
+    "user_claim": "repository",
+    "policies": ["github-actions-policy"],
+    "ttl": "1h"
+  }' \
+  http://127.0.0.1:8200/v1/auth/jwt/role/github-actions-role
+
+```
+
+#### Run this to verify the role was created:
+
+```bash
+vault read auth/jwt/role/github-actions-role
+```
+You should see output like:
+
+```bash
+Key                        Value
+---                        -----
+bound_audiences            [sigstore]
+bound_claims               map[repository:arumullayaswanth/DevSecOps-Zero-to-Hero]
+bound_claims_type          glob
+policies                   [github-actions-policy]
+role_type                  jwt
+ttl                        1h
+user_claim                 repository
 ```
 
 ---
 
 ## Step 8: Add GitHub Variables
+
+The `VAULT_ROLE` is the role name you created in Step 7. To see it:
+
+```bash
+vault list auth/jwt/role
+```
+
+Output will show:
+
+```
+Keys
+----
+github-actions-role
+```
+So your `VAULT_ROLE` = `github-actions-role`
+
 
 Go to GitHub → Repo → Settings → Secrets and variables → Actions → Variables tab
 
