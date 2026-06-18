@@ -32,10 +32,12 @@ variable "allowed_ssh_cidr" {
   type        = string
 }
 
+
+// change s3 backet name to your backet name Terraform state storage
 variable "tf_state_bucket" {
   description = "S3 bucket name for Terraform state storage"
   type        = string
-  default     = "devsecops-terraform-state-2025"
+  default     = "devsecops-terraform-state-0001"
 }
 
 variable "tf_lock_table" {

@@ -51,7 +51,7 @@
 |----------|---------|
 | `AWS_REGION` | `ap-south-1` |
 | `AWS_ROLE_ARN` | `arn:aws:iam::123456789012:role/GitHubActions-Terraform-Role` |
-| `TF_STATE_BUCKET` | `devsecops-terraform-state-2025` |
+| `TF_STATE_BUCKET` | `devsecops-terraform-state-0001` |
 | `TF_LOCK_TABLE` | `terraform-state-lock` |
 
 ### GitHub Variables — Vault Method (5 variables only)
@@ -61,7 +61,7 @@
 | `VAULT_ADDR` | `http://YOUR_EC2_IP:8200` |
 | `VAULT_ROLE` | `github-actions-role` |
 | `AWS_REGION` | `ap-south-1` |
-| `TF_STATE_BUCKET` | `devsecops-terraform-state-2025` |
+| `TF_STATE_BUCKET` | `devsecops-terraform-state-0001` |
 | `TF_LOCK_TABLE` | `terraform-state-lock` |
 
 > Everything else (working directory, state key, VPC CIDR, instance type, SSH CIDR) is set directly in the code with defaults.

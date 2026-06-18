@@ -22,7 +22,7 @@ Terraform needs a place to store its state file remotely. We use S3.
 ### Go to AWS Console:
 
 1. Open AWS Console → Search "S3" → Click "Create bucket"
-2. Bucket name: `devsecops-terraform-state-2025` (must be globally unique, change if taken)
+2. Bucket name: `devsecops-terraform-state-0001` (must be globally unique, change if taken)
 3. Region: `ap-south-1` (Mumbai) or your preferred region
 4. Enable "Bucket Versioning" → Enabled
 5. Enable "Default encryption" → SSE-S3 (AES-256)
@@ -143,7 +143,7 @@ Instead of hardcoding values in the workflow file, we store them in GitHub Varia
 |---|---|---|
 | `AWS_REGION` | Your AWS region | `ap-south-1` |
 | `AWS_ROLE_ARN` | The role ARN from Step 5 | `arn:aws:iam::123456789012:role/GitHubActions-Terraform-Role` |
-| `TF_STATE_BUCKET` | S3 bucket name from Step 1 | `devsecops-terraform-state-2025` |
+| `TF_STATE_BUCKET` | S3 bucket name from Step 1 | `devsecops-terraform-state-0001` |
 | `TF_LOCK_TABLE` | DynamoDB table name from Step 2 | `terraform-state-lock` |
 
 **What's NOT in GitHub Variables (set directly in code):**
