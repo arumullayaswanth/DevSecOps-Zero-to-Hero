@@ -81,7 +81,7 @@ jobs:
       # Vault Action: Authenticates via JWT AND fetches AWS credentials
       # Sets AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN as env vars
       - name: Get AWS credentials from Vault
-        uses: hashicorp/vault-action@v3
+        uses: hashicorp/vault-action@v4
         with:
           url: ${{ vars.VAULT_ADDR }}
           method: jwt
@@ -154,7 +154,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Get AWS credentials from Vault
-        uses: hashicorp/vault-action@v3
+        uses: hashicorp/vault-action@v4
         with:
           url: ${{ vars.VAULT_ADDR }}
           method: jwt
@@ -202,7 +202,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Get AWS credentials from Vault
-        uses: hashicorp/vault-action@v3
+        uses: hashicorp/vault-action@v4
         with:
           url: ${{ vars.VAULT_ADDR }}
           method: jwt
