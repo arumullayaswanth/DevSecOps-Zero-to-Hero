@@ -112,6 +112,14 @@ EOF
 sudo chown -R vault:vault /etc/vault.d /opt/vault
 ```
 
+### ⚠️ What YOU need to change:
+
+| Line | Change | Example |
+|------|--------|---------|
+| `api_addr = "http://YOUR_EC2_PUBLIC_IP:8200"` | Replace `YOUR_EC2_PUBLIC_IP` with your EC2 public IP | `api_addr = "http://3.110.45.67:8200"` |
+
+That's the **only thing** you change in this step. Everything else stays as-is.
+
 ---
 
 ## Step 4: Start Vault as a Service
