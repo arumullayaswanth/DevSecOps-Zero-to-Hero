@@ -1,20 +1,8 @@
 # Step-by-Step Process: Terraform + GitHub Actions + OIDC
 
-This document explains the COMPLETE process to set up Terraform with GitHub Actions using OIDC (no AWS access keys). Follow each step in order like a checklist.
-
----
-
 ## What We Are Building
 
-```
-You write Terraform code → Push to GitHub → Create PR
-→ GitHub Actions automatically runs terraform plan + Checkov scan
-→ You review the plan → Merge PR
-→ GitHub Actions automatically runs terraform apply
-→ Infrastructure created on AWS
-
-To destroy: Go to GitHub Actions → Manual trigger → Select "destroy" → Infrastructure deleted
-```
+![Architecture OIDC](images/architecture%20oidc.jpg)
 
 ---
 
@@ -23,7 +11,7 @@ To destroy: Go to GitHub Actions → Manual trigger → Select "destroy" → Inf
 - [ ] AWS Account (free tier works)
 - [ ] GitHub Account
 - [ ] GitHub Repository (your DevSecOps-Zero-to-Hero repo)
-- [ ] AWS CLI installed on your laptop (optional, for Step 1)
+
 
 ---
 
@@ -41,27 +29,6 @@ Terraform needs a place to store its state file remotely. We use S3.
 6. Block all public access → ✅ Keep all checked
 7. Click "Create bucket"
 
-### Or use AWS CLI:
-
-```bash
-aws s3api create-bucket \
-  --bucket devsecops-terraform-state-2025 \
-  --region ap-south-1 \
-  --create-bucket-configuration LocationConstraint=ap-south-1
-
-aws s3api put-bucket-versioning \
-  --bucket devsecops-terraform-state-2025 \
-  --versioning-configuration Status=Enabled
-
-aws s3api put-bucket-encryption \
-  --bucket devsecops-terraform-state-2025 \
-  --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
-
-aws s3api put-public-access-block \
-  --bucket devsecops-terraform-state-2025 \
-  --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
-```
-
 ---
 
 ## Step 2: Create DynamoDB Table for State Locking
@@ -75,17 +42,6 @@ This prevents two people from running `terraform apply` at the same time.
 3. Partition key: `LockID` (type: String)
 4. Leave everything else default
 5. Click "Create table"
-
-### Or use AWS CLI:
-
-```bash
-aws dynamodb create-table \
-  --table-name terraform-state-lock \
-  --attribute-definitions AttributeName=LockID,AttributeType=S \
-  --key-schema AttributeName=LockID,KeyType=HASH \
-  --billing-mode PAY_PER_REQUEST \
-  --region ap-south-1
-```
 
 ---
 
@@ -102,15 +58,6 @@ This tells AWS: "I trust GitHub. When GitHub Actions says it's from my repo, bel
 5. Click "Get thumbprint"
 6. Audience: `sts.amazonaws.com`
 7. Click "Add provider"
-
-### Or use AWS CLI:
-
-```bash
-aws iam create-open-id-connect-provider \
-  --url https://token.actions.githubusercontent.com \
-  --client-id-list sts.amazonaws.com \
-  --thumbprint-list 6938fd4d98bab03faadb97b34396831e3780aea1
-```
 
 ---
 
