@@ -79,7 +79,7 @@ jobs:
         uses: actions/checkout@v4
 
       # Vault Action: Authenticates via JWT AND fetches AWS credentials
-      # Sets AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN as env vars
+      # Sets AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY as env vars
       - name: Get AWS credentials from Vault
         uses: hashicorp/vault-action@v4
         with:
@@ -90,7 +90,11 @@ jobs:
           exportToken: true
           secrets: |
             aws/creds/terraform-role access_key | AWS_ACCESS_KEY_ID ;
-            aws/creds/terraform-role secret_key | AWS_SECRET_ACCESS_KEY ;
+            aws/creds/terraform-role secret_key | AWS_SECRET_ACCESS_KEY
+
+      # IAM user credentials take ~10 seconds to propagate in AWS
+      - name: Wait for AWS credentials to propagate
+        run: sleep 15
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -162,7 +166,10 @@ jobs:
           exportToken: true
           secrets: |
             aws/creds/terraform-role access_key | AWS_ACCESS_KEY_ID ;
-            aws/creds/terraform-role secret_key | AWS_SECRET_ACCESS_KEY ;
+            aws/creds/terraform-role secret_key | AWS_SECRET_ACCESS_KEY
+
+      - name: Wait for AWS credentials to propagate
+        run: sleep 15
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -209,7 +216,10 @@ jobs:
           exportToken: true
           secrets: |
             aws/creds/terraform-role access_key | AWS_ACCESS_KEY_ID ;
-            aws/creds/terraform-role secret_key | AWS_SECRET_ACCESS_KEY ;
+            aws/creds/terraform-role secret_key | AWS_SECRET_ACCESS_KEY
+
+      - name: Wait for AWS credentials to propagate
+        run: sleep 15
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
