@@ -13,7 +13,7 @@
 #   TF_STATE_BUCKET     = devsecops-terraform-state-0001
 #   TF_LOCK_TABLE       = terraform-state-lock
 
-name: Terraform Infrastructure
+name: Terraform with OIDC (OpenID Connect)
 
 on:
   push:
