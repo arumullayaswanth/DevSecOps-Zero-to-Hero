@@ -1,0 +1,79 @@
+# ============================================================
+# Vulnerable Web App Deployment
+# Deploy this FIRST, then install Falco, then attack it
+#
+# This app has a /debug?cmd= endpoint that simulates RCE
+# In real life: Log4Shell, Spring4Shell, any RCE vulnerability
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  namespace: default
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+        - name: webapp
+          image: python:3.11-slim
+          command:
+            - sh
+            - -c
+            - |
+              apt-get update && apt-get install -y curl wget >/dev/null 2>&1
+              pip install flask==3.0.0 >/dev/null 2>&1
+              python -c "
+              from flask import Flask, request
+              import subprocess, os
+              app = Flask(__name__)
+
+              @app.route('/')
+              def home():
+                  return '<h1>DevSecOps Demo Shop</h1><p>App is running!</p><a href=\"/health\">Health</a>'
+
+              @app.route('/health')
+              def health():
+                  return {'status': 'healthy', 'app': 'demo-shop'}
+
+              @app.route('/debug')
+              def debug():
+                  cmd = request.args.get('cmd', 'whoami')
+                  try:
+                      out = subprocess.check_output(cmd, shell=True, text=True, stderr=subprocess.STDOUT)
+                      return f'<pre>{out}</pre>'
+                  except Exception as e:
+                      return f'Error: {e}'
+
+              app.run(host='0.0.0.0', port=5000)
+              "
+          ports:
+            - containerPort: 5000
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: webapp
+  ports:
+    - port: 80
+      targetPort: 5000

@@ -1,0 +1,226 @@
+# ============================================================
+# Falco Production Helm Values
+# This is how companies configure Falco in real clusters
+# ============================================================
+
+# Use eBPF driver (no kernel module needed — works on EKS, GKE, AKS)
+driver:
+  kind: modern_ebpf
+
+# Enable tty for log output
+tty: true
+
+# Falco configuration
+falco:
+  # Output format
+  json_output: true
+  json_include_output_property: true
+  log_level: info
+
+  # Priority filter — in production, usually WARNING and above
+  priority: warning
+
+  # gRPC for sidekick integration
+  grpc:
+    enabled: true
+  grpc_output:
+    enabled: true
+
+# Custom rules — mounted from ConfigMap
+customRules:
+  custom-rules.yaml: |-
+    # -------------------------------------------------------
+    # Rule 1: Shell access inside container
+    # This is the #1 detection rule in every company
+    # Attacker gets RCE → first thing they do is spawn a shell
+    # -------------------------------------------------------
+    - rule: Shell Spawned in Container
+      desc: Detect any shell spawned inside a container (potential attacker)
+      condition: >
+        spawned_process and
+        container and
+        proc.name in (bash, sh, zsh, dash, ksh, csh)
+      output: >
+        SHELL ACCESS DETECTED
+        (user=%user.name container=%container.name pod=%k8s.pod.name
+         namespace=%k8s.ns.name shell=%proc.name parent=%proc.pname
+         cmdline=%proc.cmdline image=%container.image.repository)
+      priority: WARNING
+      tags: [container, shell, mitre_execution]
+
+    # -------------------------------------------------------
+    # Rule 2: Sensitive file read (credential theft)
+    # -------------------------------------------------------
+    - rule: Sensitive File Read
+      desc: Detect reading files that contain credentials
+      condition: >
+        open_read and
+        container and
+        (fd.name in (/etc/shadow, /etc/sudoers, /run/secrets/kubernetes.io/serviceaccount/token) or
+         fd.name startswith /root/.ssh or
+         fd.name startswith /root/.aws)
+      output: >
+        CREDENTIAL ACCESS ATTEMPT
+        (user=%user.name file=%fd.name container=%container.name
+         pod=%k8s.pod.name namespace=%k8s.ns.name image=%container.image.repository)
+      priority: CRITICAL
+      tags: [container, credential_access]
+
+    # -------------------------------------------------------
+    # Rule 3: Detect crypto mining (happens a LOT in production)
+    # -------------------------------------------------------
+    - rule: Crypto Mining Process
+      desc: Detect known crypto mining binaries
+      condition: >
+        spawned_process and
+        container and
+        (proc.name in (xmrig, minerd, cpuminer, cgminer, ethminer) or
+         proc.cmdline contains "stratum+tcp" or
+         proc.cmdline contains "cryptonight" or
+         proc.cmdline contains "--donate-level")
+      output: >
+        CRYPTO MINER DETECTED
+        (process=%proc.name cmdline=%proc.cmdline container=%container.name
+         pod=%k8s.pod.name namespace=%k8s.ns.name image=%container.image.repository)
+      priority: CRITICAL
+      tags: [container, cryptomining]
+
+    # -------------------------------------------------------
+    # Rule 4: Package manager in running container
+    # In production, containers should be immutable — no installs
+    # -------------------------------------------------------
+    - rule: Package Manager in Production
+      desc: Package managers should never run in production containers
+      condition: >
+        spawned_process and
+        container and
+        proc.name in (apt, apt-get, yum, dnf, apk, pip, pip3, npm, gem)
+      output: >
+        PACKAGE MANAGER EXECUTED (container drift)
+        (command=%proc.cmdline container=%container.name
+         pod=%k8s.pod.name namespace=%k8s.ns.name image=%container.image.repository)
+      priority: ERROR
+      tags: [container, drift, software_mgmt]
+
+    # -------------------------------------------------------
+    # Rule 5: Binary directory modification (malware drop)
+    # -------------------------------------------------------
+    - rule: Write to Binary Directory
+      desc: Detect writes to /usr/bin, /bin, etc (malware installation)
+      condition: >
+        open_write and
+        container and
+        (fd.name startswith /usr/bin or
+         fd.name startswith /usr/sbin or
+         fd.name startswith /bin or
+         fd.name startswith /sbin)
+      output: >
+        BINARY DIRECTORY MODIFIED (possible malware)
+        (file=%fd.name user=%user.name command=%proc.cmdline
+         container=%container.name pod=%k8s.pod.name namespace=%k8s.ns.name)
+      priority: CRITICAL
+      tags: [container, persistence, malware]
+
+    # -------------------------------------------------------
+    # Rule 6: Reverse shell detection
+    # -------------------------------------------------------
+    - rule: Reverse Shell
+      desc: Detect reverse shell attempts from containers
+      condition: >
+        spawned_process and
+        container and
+        ((proc.cmdline contains "/dev/tcp") or
+         (proc.name in (nc, ncat, netcat) and proc.args contains "-e") or
+         (proc.name in (python, python3) and proc.cmdline contains "socket"))
+      output: >
+        REVERSE SHELL DETECTED
+        (cmdline=%proc.cmdline container=%container.name
+         pod=%k8s.pod.name namespace=%k8s.ns.name image=%container.image.repository)
+      priority: CRITICAL
+      tags: [container, reverse_shell, mitre_execution]
+
+    # -------------------------------------------------------
+    # Rule 7: K8s service account token access
+    # If non-kube-system pods read the SA token → suspicious
+    # -------------------------------------------------------
+    - rule: Service Account Token Read
+      desc: Detect unauthorized access to K8s service account tokens
+      condition: >
+        open_read and
+        container and
+        fd.name = /run/secrets/kubernetes.io/serviceaccount/token and
+        not k8s.ns.name = kube-system
+      output: >
+        SERVICE ACCOUNT TOKEN ACCESSED
+        (user=%user.name container=%container.name
+         pod=%k8s.pod.name namespace=%k8s.ns.name process=%proc.name)
+      priority: WARNING
+      tags: [container, kubernetes, credential_access]
+
+    # -------------------------------------------------------
+    # Rule 8: Curl/Wget download inside container
+    # Attackers download malware/tools after gaining access
+    # This is the #2 most common post-exploitation behavior
+    # -------------------------------------------------------
+    - rule: Curl or Wget Download in Container
+      desc: Detect curl/wget usage inside container (malware download)
+      condition: >
+        spawned_process and
+        container and
+        proc.name in (curl, wget)
+      output: >
+        DOWNLOAD TOOL USED IN CONTAINER
+        (user=%user.name command=%proc.cmdline container=%container.name
+         pod=%k8s.pod.name namespace=%k8s.ns.name image=%container.image.repository)
+      priority: WARNING
+      tags: [container, network, mitre_command_and_control]
+
+    # -------------------------------------------------------
+    # Rule 9: Privileged container started
+    # Privileged containers have FULL access to host kernel
+    # This is a container escape waiting to happen
+    # -------------------------------------------------------
+    - rule: Privileged Container Started
+      desc: Detect privileged container execution (host-level access)
+      condition: >
+        container_started and
+        container.privileged=true
+      output: >
+        PRIVILEGED CONTAINER LAUNCHED
+        (container=%container.name pod=%k8s.pod.name
+         namespace=%k8s.ns.name image=%container.image.repository)
+      priority: CRITICAL
+      tags: [container, privileged, mitre_privilege_escalation]
+
+# Falco Sidekick — forwards alerts to Slack, Teams, PagerDuty, etc.
+falcosidekick:
+  enabled: true
+  config:
+    # Uncomment and configure for your company's alerting
+    # slack:
+    #   webhookurl: "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+    #   channel: "#security-alerts"
+    #   minimumpriority: "warning"
+    # pagerduty:
+    #   routingkey: "your-pagerduty-key"
+    #   minimumpriority: "critical"
+
+  # Sidekick Web UI — shows all alerts in a dashboard
+  webui:
+    enabled: true
+    service:
+      type: ClusterIP
+
+# Resource limits for Falco pods
+resources:
+  limits:
+    memory: 512Mi
+    cpu: 500m
+  requests:
+    memory: 256Mi
+    cpu: 100m
+
+# Tolerations — run Falco on ALL nodes (including tainted ones)
+tolerations:
+  - effect: NoSchedule
+    operator: Exists
