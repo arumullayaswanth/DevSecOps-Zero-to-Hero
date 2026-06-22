@@ -27,6 +27,19 @@ helm upgrade --install falco falcosecurity/falco \
   --wait \
   --timeout 5m
 
+# If the above fails (sidekick template issue), try without sidekick
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "⚠️  Install with Sidekick failed. Retrying without Sidekick UI..."
+  echo ""
+  helm upgrade --install falco falcosecurity/falco \
+    --namespace falco \
+    --values values-production.yaml \
+    --set falcosidekick.enabled=false \
+    --wait \
+    --timeout 5m
+fi
+
 # Step 4: Verify installation
 echo "[4/4] Verifying Falco installation..."
 echo ""

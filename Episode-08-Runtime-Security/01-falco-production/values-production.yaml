@@ -196,6 +196,9 @@ customRules:
 falcosidekick:
   enabled: true
   config:
+    tlsserver:
+      deploy: false
+      notlspaths: []
     # Uncomment and configure for your company's alerting
     # slack:
     #   webhookurl: "https://hooks.slack.com/services/XXX/YYY/ZZZ"
