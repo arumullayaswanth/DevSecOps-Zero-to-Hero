@@ -20,12 +20,6 @@ falco:
   # Priority filter — in production, usually WARNING and above
   priority: warning
 
-  # gRPC for sidekick integration
-  grpc:
-    enabled: true
-  grpc_output:
-    enabled: true
-
 # Custom rules — mounted from ConfigMap
 customRules:
   custom-rules.yaml: |-
