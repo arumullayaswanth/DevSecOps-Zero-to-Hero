@@ -239,6 +239,7 @@ kubectl logs -n falco -l app.kubernetes.io/name=falco --tail=5
 # Access Sidekick Web UI
 kubectl port-forward -n falco svc/falco-falcosidekick-ui 2802:2802
 # Open browser: http://localhost:2802
+# Login → User: admin | Password: admin
 ```
 
 ---

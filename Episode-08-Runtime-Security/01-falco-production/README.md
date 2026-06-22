@@ -219,6 +219,10 @@ kubectl port-forward -n falco svc/falco-falcosidekick-ui 2802:2802
 
 Open browser: http://localhost:2802
 
+**Login credentials:**
+- User: `admin`
+- Password: `admin`
+
 ---
 
 ## How to add your own custom rules
