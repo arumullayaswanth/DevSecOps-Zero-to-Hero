@@ -1,7 +1,7 @@
 # Episode 01 - DevSecOps Introduction
 ## 🎥 Watch the Video
 
-[![Episode 01 - DevSecOps Introduction](https://img.youtube.com/vi/gA1NYqZ-kkE/maxresdefault.jpg)](https://youtu.be/gA1NYqZ-kkE)
+[![Episode 01 - DevSecOps Introduction](https://i.ytimg.com/vi/gA1NYqZ-kkE/hqdefault.jpg)](https://youtu.be/gA1NYqZ-kkE)
 
 👉 **Click the thumbnail above to watch Episode 01 on YouTube.**
 
