@@ -1,5 +1,9 @@
 # DevSecOps for This Weather App
+## 🎥 Watch the Video
 
+[![Episode 03 - Secure CI/CD Pipeline](https://i.ytimg.com/vi/cZ9yXEUVa9Y/hqdefault.jpg)](https://youtu.be/cZ9yXEUVa9Y)
+
+👉 **Click the thumbnail above to watch Episode 03 on YouTube.**
 ## 1. What is this project?
 
 This project is a weather website made using React.
