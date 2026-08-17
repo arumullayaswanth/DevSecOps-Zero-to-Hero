@@ -3,6 +3,11 @@
 A complete hands-on DevSecOps course — from fundamentals to production-ready secure pipelines. Each episode is structured for 1-hour learning with real commands, real tools, and real configurations.
 
 **GitHub:** [github.com/arumullayaswanth/DevSecOps-Zero-to-Hero](https://github.com/arumullayaswanth/DevSecOps-Zero-to-Hero)
+## 🎥 DevSecOps Zero to Hero — Complete Playlist
+
+[![DevSecOps Zero to Hero](https://i.ytimg.com/vi/gA1NYqZ-kkE/hqdefault.jpg)](https://www.youtube.com/playlist?list=PLTFyRuook4GyxH6C45qxlexA_TUR5zulW)
+
+👉 **Click the image above to watch the complete DevSecOps Zero to Hero playlist on YouTube.**
 
 ---
 
