@@ -5,6 +5,12 @@
 
 👉 **Click the thumbnail above to watch Episode 01 on YouTube.**
 
+## 🎥 Watch the Video
+
+[![Episode 02 - DevSecOps Architecture](https://i.ytimg.com/vi/gy_0_xvhrLM/hqdefault.jpg)](https://youtu.be/gy_0_xvhrLM)
+
+👉 **Click the thumbnail above to watch Episode 02 on YouTube.**
+
 ## 📋 Table of Contents
 1. [What is DevSecOps?](#what-is-devsecops)
 2. [Why DevSecOps is Important](#why-devsecops-is-important)
